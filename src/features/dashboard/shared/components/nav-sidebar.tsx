@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useProfile } from "@/hooks/use-profile";
 import { useAuth } from "@/hooks/use-auth";
+import { useCommodities } from "@/hooks/use-commodities";
 import {
   Tooltip,
   TooltipContent,
@@ -40,39 +41,48 @@ interface NavSection {
   items: NavItem[];
 }
 
-const navSections: NavSection[] = [
-  {
-    label: "Home",
-    items: [
-      { id: "home", icon: Home, label: "My Portfolio", href: "/dashboard" },
-    ]
-  },
-  {
-    label: "Commodities",
-    items: [
-      { id: "wheat", icon: Wheat, label: "Wheat Dashboard", href: "/dashboard/wheat" },
-    ]
-  },
-  {
-    label: "Manage",
-    items: [
-      { id: "store", icon: Store, label: "Commodity Store", href: "/dashboard/store" },
-      { id: "alerts", icon: Bell, label: "Alerts", href: "/dashboard/alerts" },
-      { id: "profile", icon: User2, label: "Profile", href: "/dashboard/profile" },
-    ]
-  }
-];
-
 export function NavSidebar({ onCollapsedChange }: NavSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { profile } = useProfile();
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const { userCommodities } = useCommodities();
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth');
   };
+
+  // Build navigation sections dynamically based on user's portfolio
+  const navSections: NavSection[] = [
+    {
+      label: "Home",
+      items: [
+        { id: "home", icon: Home, label: "My Portfolio", href: "/dashboard" },
+      ]
+    },
+    {
+      label: "Manage",
+      items: [
+        { id: "store", icon: Store, label: "Commodity Store", href: "/dashboard/store" },
+        { id: "alerts", icon: Bell, label: "Alerts", href: "/dashboard/alerts" },
+        { id: "profile", icon: User2, label: "Profile", href: "/dashboard/profile" },
+      ]
+    }
+  ];
+
+  // Add commodities section if user has any in their portfolio
+  if (userCommodities.length > 0) {
+    navSections.splice(1, 0, {
+      label: "Commodities",
+      items: userCommodities.map(commodity => ({
+        id: commodity.symbol.toLowerCase(),
+        icon: Wheat,
+        label: commodity.name,
+        href: `/dashboard/${commodity.symbol.toLowerCase()}`
+      }))
+    });
+  }
 
   return (
     <div 
@@ -210,3 +220,5 @@ function NavItem({ item, isCollapsed }: { item: NavItem; isCollapsed: boolean })
     </TooltipProvider>
   ) : content;
 }
+
+export default NavSidebar;

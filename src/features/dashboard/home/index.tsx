@@ -6,11 +6,11 @@ import { Store, ArrowRight, AlertTriangle, Loader2, TrendingUp, LineChart } from
 import { useProfile } from "@/hooks/use-profile";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-import { TypingGreeting } from "./components/typing-greeting";
+import { TypingGreeting } from "@/features/dashboard/shared/components/typing-greeting";
 import { EmptyPortfolio } from "./components/empty-portfolio";
 import { PortfolioGrid } from "./components/portfolio-grid";
 import { PortfolioHeader } from "./components/portfolio-header";
-import { StatCard } from "@/components/dashboard/stat-card";
+import { StatCard } from "@/features/dashboard/shared/components/stat-card";
 
 interface PortfolioStats {
   totalCommodities: number;
@@ -184,10 +184,10 @@ export function DashboardHome() {
                 Browse Commodity Store
               </Button>
             </Link>
-            <Link to="/dashboard/profile">
+            <Link to="/dashboard/alerts">
               <Button variant="outline" className="w-full justify-start gap-2">
                 <AlertTriangle className="h-4 w-4" />
-                Update Notification Settings
+                Update Alert Settings
               </Button>
             </Link>
           </div>

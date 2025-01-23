@@ -8,7 +8,7 @@ import { HowItWorks } from "@/components/landing/how-it-works";
 import { VisionSection } from "@/components/landing/vision-section";
 import { FinalCta } from "@/components/landing/final-cta";
 import { Footer } from "@/components/landing/footer";
-import { SporaChat } from "@/components/dashboard/spora-chat";
+import { SporaChat } from "@/features/dashboard/shared/components/spora-chat";
 import { cn } from "@/lib/utils";
 
 export function LandingPage() {
@@ -155,3 +155,5 @@ export function LandingPage() {
     </div>
   );
 }
+
+export default LandingPage;

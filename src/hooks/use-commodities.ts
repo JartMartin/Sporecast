@@ -58,89 +58,20 @@ export function useCommodities() {
     }
   };
 
-  const addCommodity = async (commodityId: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      // Check if already in portfolio
-      const { data: existing } = await supabase
-        .from('commodity_portfolio')
-        .select('id, status')
-        .eq('user_id', user.id)
-        .eq('commodity_id', commodityId)
-        .maybeSingle();
-
-      if (existing) {
-        if (existing.status === 'active') {
-          throw new Error('Commodity is already in your portfolio');
-        }
-
-        // Reactivate if inactive
-        const { error: updateError } = await supabase
-          .from('commodity_portfolio')
-          .update({
-            status: 'active',
-            added_at: new Date().toISOString(),
-            last_viewed_at: new Date().toISOString()
-          })
-          .eq('id', existing.id);
-
-        if (updateError) throw updateError;
-      } else {
-        // Add new entry
-        const { error: insertError } = await supabase
-          .from('commodity_portfolio')
-          .insert({
-            user_id: user.id,
-            commodity_id: commodityId,
-            status: 'active',
-            last_viewed_at: new Date().toISOString()
-          });
-
-        if (insertError) throw insertError;
-      }
-
-      await fetchCommodities();
-      return { error: null };
-    } catch (error: any) {
-      console.error('Error adding commodity:', error);
-      return { error: error.message };
-    }
-  };
-
-  const removeCommodity = async (commodityId: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { error } = await supabase
-        .from('commodity_portfolio')
-        .update({ status: 'inactive' })
-        .eq('user_id', user.id)
-        .eq('commodity_id', commodityId);
-
-      if (error) throw error;
-
-      await fetchCommodities();
-      return { error: null };
-    } catch (error: any) {
-      console.error('Error removing commodity:', error);
-      return { error: error.message };
-    }
-  };
-
   useEffect(() => {
     fetchCommodities();
 
-    // Subscribe to portfolio changes
+    // Subscribe to ALL relevant changes
     const subscription = supabase
       .channel('portfolio_changes')
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 
         table: 'commodity_portfolio' 
-      }, fetchCommodities)
+      }, () => {
+        // Immediately fetch updated data when portfolio changes
+        fetchCommodities();
+      })
       .subscribe();
 
     return () => {
@@ -153,8 +84,6 @@ export function useCommodities() {
     error,
     commodities,
     userCommodities,
-    addCommodity,
-    removeCommodity,
     refreshCommodities: fetchCommodities
   };
 }

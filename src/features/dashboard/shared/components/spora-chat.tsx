@@ -218,3 +218,5 @@ export function SporaChat() {
     </div>
   );
 }
+
+export default SporaChat;

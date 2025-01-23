@@ -52,21 +52,21 @@ export function AddCommodityDialog({
             variant: "destructive",
           });
           onOpenChange(false);
-          navigate(`/dashboard/${commodityName.toLowerCase()}`);
+          navigate(`/dashboard/wheat`);
           return;
-        } else {
-          // If inactive, reactivate it
-          const { error: updateError } = await supabase
-            .from('commodity_portfolio')
-            .update({ 
-              status: 'active', 
-              added_at: new Date().toISOString(),
-              last_viewed_at: new Date().toISOString()
-            })
-            .eq('id', existing.id);
-
-          if (updateError) throw updateError;
         }
+
+        // If inactive, reactivate it
+        const { error: updateError } = await supabase
+          .from('commodity_portfolio')
+          .update({ 
+            status: 'active', 
+            added_at: new Date().toISOString(),
+            last_viewed_at: new Date().toISOString()
+          })
+          .eq('id', existing.id);
+
+        if (updateError) throw updateError;
       } else {
         // Add new entry to portfolio
         const { error: insertError } = await supabase
@@ -78,20 +78,7 @@ export function AddCommodityDialog({
             last_viewed_at: new Date().toISOString()
           });
 
-        if (insertError) {
-          // If we hit a unique constraint, the commodity was added in another tab
-          if (insertError.code === '23505') {
-            toast({
-              title: "Already in Portfolio",
-              description: `${commodityName} is already in your portfolio.`,
-              variant: "destructive",
-            });
-            onOpenChange(false);
-            navigate(`/dashboard/${commodityName.toLowerCase()}`);
-            return;
-          }
-          throw insertError;
-        }
+        if (insertError) throw insertError;
       }
 
       toast({
@@ -101,7 +88,7 @@ export function AddCommodityDialog({
 
       // Close dialog and navigate to the commodity page
       onOpenChange(false);
-      navigate(`/dashboard/${commodityName.toLowerCase()}`);
+      navigate(`/dashboard/wheat`);
     } catch (error: any) {
       console.error('Error adding commodity:', error);
       toast({
@@ -163,3 +150,5 @@ export function AddCommodityDialog({
     </Dialog>
   );
 }
+
+export default AddCommodityDialog;

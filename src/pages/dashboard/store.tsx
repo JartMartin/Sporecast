@@ -7,8 +7,6 @@ import { ChevronLeft, Plus, Search, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { AddCommodityDialog } from "@/components/dashboard/add-commodity-dialog";
-import { RequestDialog } from "@/components/dashboard/request-dialog";
-import { CommodityCard } from "@/components/dashboard/commodity-card";
 
 interface Commodity {
   id: string;
@@ -20,7 +18,6 @@ interface Commodity {
 }
 
 export function CommodityStore() {
-  const [showRequestForm, setShowRequestForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCommodity, setSelectedCommodity] = useState<Commodity | null>(null);
   const [commodities, setCommodities] = useState<Commodity[]>([]);
@@ -101,15 +98,6 @@ export function CommodityStore() {
     commodity.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const groupedCommodities = filteredCommodities.reduce((acc, commodity) => {
-    const category = commodity.status === "coming-soon" ? "Coming Soon" : commodity.category;
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(commodity);
-    return acc;
-  }, {} as Record<string, Commodity[]>);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
@@ -143,37 +131,55 @@ export function CommodityStore() {
             className="pl-9"
           />
         </div>
-        <Button 
-          className="gap-2 whitespace-nowrap"
-          onClick={() => setShowRequestForm(true)}
-        >
-          <Plus className="h-4 w-4" /> Request Commodity
-        </Button>
       </div>
 
-      <div className="space-y-6">
-        {Object.entries(groupedCommodities).map(([category, commodities]) => (
-          commodities.length > 0 && (
-            <div key={category} className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">{category}</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                {commodities.map((commodity) => (
-                  <CommodityCard 
-                    key={commodity.id} 
-                    commodity={commodity}
-                    onSelect={setSelectedCommodity}
-                  />
-                ))}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        {filteredCommodities.map((commodity) => (
+          <Card key={commodity.id} className="flex flex-col">
+            <div className="p-4 flex flex-col h-full">
+              <div className="flex items-center justify-between gap-4 mb-3">
+                <div className="min-w-0">
+                  <h3 className="font-medium truncate">{commodity.name}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs px-1.5 py-0.5 bg-gray-100 rounded">
+                      {commodity.market_code}
+                    </span>
+                    <span className="text-xs text-muted-foreground truncate">
+                      {commodity.exchange}
+                    </span>
+                  </div>
+                </div>
+                {commodity.status === "coming-soon" && (
+                  <span className="flex-shrink-0 text-xs font-medium bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded">
+                    Soon
+                  </span>
+                )}
+                {commodity.status === "portfolio" && (
+                  <span className="flex-shrink-0 text-xs font-medium bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded">
+                    Added
+                  </span>
+                )}
               </div>
+              <Button
+                className="w-full mt-auto"
+                variant={commodity.status === "portfolio" ? "outline" : "default"}
+                size="sm"
+                disabled={commodity.status !== "available"}
+                onClick={() => {
+                  if (commodity.status === "available") {
+                    setSelectedCommodity(commodity);
+                  }
+                }}
+              >
+                {commodity.status === "portfolio"
+                  ? "In Portfolio"
+                  : commodity.status === "coming-soon"
+                  ? "Coming Soon"
+                  : "Add to Portfolio"}
+              </Button>
             </div>
-          )
+          </Card>
         ))}
-        
-        {filteredCommodities.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No commodities found matching your search.</p>
-          </div>
-        )}
       </div>
 
       <AddCommodityDialog
@@ -181,11 +187,6 @@ export function CommodityStore() {
         onOpenChange={() => setSelectedCommodity(null)}
         commodityId={selectedCommodity?.id || ''}
         commodityName={selectedCommodity?.name || ''}
-      />
-
-      <RequestDialog
-        open={showRequestForm}
-        onOpenChange={setShowRequestForm}
       />
     </div>
   );

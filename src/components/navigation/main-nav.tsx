@@ -57,15 +57,15 @@ export function MainNav() {
                   <ul className="grid w-[400px] gap-3 p-4">
                     {features.map((feature) => (
                       <li key={feature.title}>
-                        <div
-                          onClick={() => window.location.href = feature.href}
-                          className="block select-none space-y-1 rounded-md p-3 leading-none outline-none transition-colors hover:bg-teal-50 hover:text-teal-900 cursor-pointer"
+                        <Link
+                          to={feature.href}
+                          className="block select-none space-y-1 rounded-md p-3 leading-none outline-none transition-colors hover:bg-teal-50 hover:text-teal-900"
                         >
                           <div className="text-sm font-medium">{feature.title}</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                             {feature.description}
                           </p>
-                        </div>
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -73,8 +73,8 @@ export function MainNav() {
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <div
-                  onClick={() => window.location.href = '/pricing'}
+                <Link
+                  to="/pricing"
                   className={cn(
                     navigationMenuTriggerStyle(),
                     "text-gray-600 hover:text-gray-900 cursor-pointer",
@@ -82,25 +82,12 @@ export function MainNav() {
                   )}
                 >
                   Pricing
-                </div>
+                </Link>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <div
-                  onClick={() => window.location.href = '/commodities'}
-                  className={cn(
-                    navigationMenuTriggerStyle(),
-                    "text-gray-600 hover:text-gray-900 cursor-pointer",
-                    location.pathname === "/commodities" && "bg-teal-50 text-teal-900"
-                  )}
-                >
-                  Commodity Catalog
-                </div>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <div
-                  onClick={() => window.location.href = '/story'}
+                <Link
+                  to="/story"
                   className={cn(
                     navigationMenuTriggerStyle(),
                     "text-gray-600 hover:text-gray-900 cursor-pointer",
@@ -108,7 +95,7 @@ export function MainNav() {
                   )}
                 >
                   Our Story
-                </div>
+                </Link>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>

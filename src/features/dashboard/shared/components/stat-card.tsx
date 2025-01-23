@@ -27,3 +27,5 @@ export function StatCard({ title, value, icon, description }: StatCardProps) {
     </Card>
   );
 }
+
+export default StatCard;
