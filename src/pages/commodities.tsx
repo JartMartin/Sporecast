@@ -1,13 +1,14 @@
 import { MainNav } from "@/components/navigation/main-nav";
 import { CommodityTable } from "@/components/commodities/commodity-table";
+import { SporaChat } from "@/features/dashboard/shared/components/spora-chat";
 
 // Mock data for commodities
 const commoditiesData = [
   {
-    name: "Wheat",
+    name: "Milling Wheat / Blé de Meunerie",
     category: "Cereals",
-    exchange: "Chicago Mercantile Exchange (CME)",
-    marketCode: "ZW",
+    exchange: "Euronext",
+    marketCode: "EBM",
     status: "available" as const,
   },
   {
@@ -57,9 +58,12 @@ export function CommoditiesPage() {
           {/* Header Section */}
           <div className="max-w-3xl mx-auto text-center space-y-8 mb-16">
             <h1 className="text-4xl font-bold tracking-tight">
-              Commodity{" "}
-              <span className="bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
-                Catalog
+              <span className="text-gray-900">Stay Ahead of </span>
+              <span className="relative inline-block">
+                <span className="absolute -inset-2 rounded-lg bg-gradient-to-r from-teal-500/20 to-emerald-500/20 blur-lg" />
+                <span className="relative bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+                  Food Commodity Markets
+                </span>
               </span>
             </h1>
             <p className="text-xl text-gray-600">
@@ -71,6 +75,9 @@ export function CommoditiesPage() {
           <CommodityTable commodities={commoditiesData} />
         </div>
       </main>
+
+      {/* Add Spora Chat */}
+      <SporaChat />
     </div>
   );
 }

@@ -184,19 +184,16 @@ export function SporaChat() {
                   } as React.CSSProperties}
                 >
                   <Sprout className={cn(
-                    "icon h-5 w-5",
+                    "icon",
                     isHovered && "opacity-0 -translate-x-2"
                   )} />
                   <span className={cn(
                     "title",
                     isHovered && "opacity-100 translate-x-0"
-                  )}>Meet Spora</span>
-
-                  {/* Notification Dot */}
-                  <div className="absolute top-0 right-0 h-2.5 w-2.5">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75 animate-ping" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-500" />
-                  </div>
+                  )}>
+                    Meet Spora
+                  </span>
+                  <div className="notification-dot" />
                 </div>
               </TooltipTrigger>
               <TooltipContent 

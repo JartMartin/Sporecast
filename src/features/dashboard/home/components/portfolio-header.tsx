@@ -10,10 +10,10 @@ export function PortfolioHeader({ totalCommodities }: PortfolioHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
       <div>
-        <h2 className="text-xl font-semibold tracking-tight text-neutral-900">My Portfolio</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-neutral-900">My Commodities</h2>
         <p className="mt-1 text-sm text-neutral-500">
           {totalCommodities === 0 
-            ? "Start building your portfolio by adding commodities"
+            ? "Start building your commodity list by adding commodities"
             : `Managing ${totalCommodities} commodit${totalCommodities === 1 ? 'y' : 'ies'}`
           }
         </p>

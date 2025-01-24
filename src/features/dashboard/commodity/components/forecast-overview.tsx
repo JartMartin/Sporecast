@@ -33,7 +33,18 @@ export function ForecastOverview({
   currentPrice,
   onSetAlert,
 }: ForecastOverviewProps) {
-  const formattedHorizon = horizon.charAt(0).toUpperCase() + horizon.slice(1);
+  // Helper function to format horizon text
+  const getHorizonText = (horizon: string) => {
+    switch (horizon) {
+      case "1w": return "1 week";
+      case "4w": return "4 weeks";
+      case "12w": return "12 weeks";
+      case "26w": return "26 weeks";
+      case "52w": return "52 weeks";
+      default: return horizon;
+    }
+  };
+
   const priceChange = ((expectedPrice - currentPrice) / currentPrice) * 100;
 
   // Helper function to get gradient colors based on value
@@ -45,6 +56,7 @@ export function ForecastOverview({
 
   const trendColors = getGradientColors(trendIndex / 5);
   const volatilityColors = getGradientColors(volatilityIndex / 100);
+  const horizonText = getHorizonText(horizon);
 
   return (
     <div className="space-y-6">
@@ -53,7 +65,7 @@ export function ForecastOverview({
         <div className="space-y-1">
           <h2 className="text-xl font-semibold">Forecast Overview</h2>
           <p className="text-sm text-muted-foreground">
-            Real-time price predictions and market insights for {horizon} horizon
+            Real-time price predictions and market insights for {horizonText} horizon
           </p>
         </div>
       </div>
@@ -66,7 +78,7 @@ export function ForecastOverview({
             <p className="text-sm text-muted-foreground text-center mb-2">
               Expected Price
               <br />
-              <span className="text-xs">(End of this {formattedHorizon})</span>
+              <span className="text-xs">(End of {horizonText})</span>
             </p>
             <p className="text-2xl font-semibold text-emerald-600 mb-1">
               €{expectedPrice.toFixed(2)}
@@ -93,7 +105,7 @@ export function ForecastOverview({
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-neutral-600">Trend Index</span>
                 <span className="text-sm text-neutral-600">
-                  {trendChange >= 0 ? "+" : ""}{trendChange}% vs last {horizon}
+                  {trendChange >= 0 ? "+" : ""}{trendChange}% vs last {horizonText}
                 </span>
               </div>
               <div className="space-y-1">
@@ -123,7 +135,7 @@ export function ForecastOverview({
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-neutral-600">Volatility Index</span>
                 <span className="text-sm text-neutral-600">
-                  {volatilityChange >= 0 ? "+" : ""}{volatilityChange}% vs last {horizon}
+                  {volatilityChange >= 0 ? "+" : ""}{volatilityChange}% vs last {horizonText}
                 </span>
               </div>
               <div className="space-y-1">
@@ -212,5 +224,3 @@ export function ForecastOverview({
     </div>
   );
 }
-
-export default ForecastOverview;

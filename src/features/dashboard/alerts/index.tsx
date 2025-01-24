@@ -1,3 +1,4 @@
+import { Loading3D } from "@/components/ui/loading-3d";
 import { Card } from "@/components/ui/card";
 import { AlertCard } from "./components/alert-card";
 import { EmptyAlerts } from "./components/empty-alerts";
@@ -9,8 +10,8 @@ export function AlertsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[200px]">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loading3D />
       </div>
     );
   }

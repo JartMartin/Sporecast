@@ -16,20 +16,70 @@ export interface Profile {
 }
 
 // Commodity Types
-export interface Commodity {
+export interface CommodityBase {
   id: string;
   name: string;
   symbol: string;
-  category: string;
-  market_code: string;
+  marketCode: string;
   exchange: string;
-  status: 'available' | 'coming-soon';
+  category: string;
 }
 
-export interface PortfolioCommodity extends Commodity {
+export interface PriceRange {
+  low: number;
+  high: number;
+  current: number;
+}
+
+export interface TradingHours {
+  start: string;
+  end: string;
+  timezone: string;
+}
+
+export interface Specifications {
+  minimum: {
+    hagbergFallingNumber: number;
+    proteinContent: number;
+    specificWeight: number;
+  };
+  basis: {
+    moistureContent: number;
+    brokenGrains: number;
+    impurities: number;
+  };
+}
+
+export interface CommodityDetails extends CommodityBase {
+  displayName: string;
+  currentPrice: number;
+  priceChange: number;
+  percentChange: number;
+  weekRange: PriceRange;
+  forecastedRange: PriceRange;
+  tradingHours: TradingHours;
+  volume: {
+    amount: number;
+    unit: string;
+    change: number;
+  };
+  deliveryMonths: string[];
+  specifications: Specifications;
+}
+
+export interface PortfolioCommodity extends CommodityBase {
   status: 'active' | 'inactive';
   added_at: string;
   last_viewed_at: string | null;
+}
+
+// Forecast Types
+export interface Forecast {
+  date: string;
+  price: number;
+  is_forecast: boolean;
+  confidence_lower?: number;
+  confidence_upper?: number;
 }
 
 // Alert Types
@@ -43,13 +93,4 @@ export interface Alert {
     name: string;
   };
   created_at: string;
-}
-
-// Forecast Types
-export interface Forecast {
-  date: string;
-  price: number;
-  is_forecast: boolean;
-  confidence_lower?: number;
-  confidence_upper?: number;
 }

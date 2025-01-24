@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Brain, Calendar, Settings, TrendingUp, Coffee, ArrowRight } from "lucide-react";
-import { SporaChat } from "@/components/dashboard/spora-chat";
+import { SporaChat } from "@/features/dashboard/shared/components/spora-chat";
 import {
   Accordion,
   AccordionContent,

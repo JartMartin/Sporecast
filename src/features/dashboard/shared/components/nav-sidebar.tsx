@@ -6,7 +6,6 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useProfile } from "@/hooks/use-profile";
 import { useAuth } from "@/hooks/use-auth";
-import { useCommodities } from "@/hooks/use-commodities";
 import {
   Tooltip,
   TooltipContent,
@@ -21,8 +20,7 @@ import {
   Home,
   Store,
   Bell,
-  User2,
-  Wheat
+  User2
 } from "lucide-react";
 
 interface NavSidebarProps {
@@ -37,7 +35,7 @@ interface NavItem {
 }
 
 interface NavSection {
-  label: string;
+  label?: string;
   items: NavItem[];
 }
 
@@ -46,19 +44,17 @@ export function NavSidebar({ onCollapsedChange }: NavSidebarProps) {
   const { profile } = useProfile();
   const { signOut } = useAuth();
   const navigate = useNavigate();
-  const { userCommodities } = useCommodities();
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth');
   };
 
-  // Build navigation sections dynamically based on user's portfolio
+  // Define navigation sections
   const navSections: NavSection[] = [
     {
-      label: "Home",
       items: [
-        { id: "home", icon: Home, label: "My Portfolio", href: "/dashboard" },
+        { id: "home", icon: Home, label: "My Commodities", href: "/dashboard" },
       ]
     },
     {
@@ -70,19 +66,6 @@ export function NavSidebar({ onCollapsedChange }: NavSidebarProps) {
       ]
     }
   ];
-
-  // Add commodities section if user has any in their portfolio
-  if (userCommodities.length > 0) {
-    navSections.splice(1, 0, {
-      label: "Commodities",
-      items: userCommodities.map(commodity => ({
-        id: commodity.symbol.toLowerCase(),
-        icon: Wheat,
-        label: commodity.name,
-        href: `/dashboard/${commodity.symbol.toLowerCase()}`
-      }))
-    });
-  }
 
   return (
     <div 
@@ -109,8 +92,8 @@ export function NavSidebar({ onCollapsedChange }: NavSidebarProps) {
         {/* Navigation */}
         <nav className="flex-1 px-2 py-3 space-y-0.5">
           {navSections.map((section, index) => (
-            <div key={section.label} className="space-y-0.5">
-              {!isCollapsed && section.label !== "Home" && (
+            <div key={section.label || index} className="space-y-0.5">
+              {!isCollapsed && section.label && (
                 <div className="px-3 py-2">
                   <h3 className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
                     {section.label}

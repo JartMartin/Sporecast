@@ -74,6 +74,19 @@ export function MainNav() {
 
               <NavigationMenuItem>
                 <Link
+                  to="/commodities"
+                  className={cn(
+                    navigationMenuTriggerStyle(),
+                    "text-gray-600 hover:text-gray-900 cursor-pointer",
+                    location.pathname === "/commodities" && "bg-teal-50 text-teal-900"
+                  )}
+                >
+                  Commodity Catalog
+                </Link>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <Link
                   to="/pricing"
                   className={cn(
                     navigationMenuTriggerStyle(),

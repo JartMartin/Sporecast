@@ -1,14 +1,50 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ProfileForm } from "./components/profile-form";
-import { Bell, CreditCard, Lock, Shield } from "lucide-react";
+import { Bell, CreditCard, Lock, Shield, Store, TrendingUp, LineChart } from "lucide-react";
+import { useProfile } from "@/hooks/use-profile";
+import { useCommodities } from "@/hooks/use-commodities";
+import { Loading3D } from "@/components/ui/loading-3d";
+import { StatCard } from "@/features/dashboard/shared/components/stat-card";
 
 export function ProfilePage() {
+  const { profile, loading: profileLoading } = useProfile();
+  const { userCommodities, loading: commoditiesLoading } = useCommodities();
+
+  if (profileLoading || commoditiesLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-8">
+        <Loading3D />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Profile Settings</h1>
         <p className="text-muted-foreground">Manage your account preferences and subscription</p>
+      </div>
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <StatCard 
+          title="Active Commodities"
+          value={userCommodities.length}
+          icon={<Store className="h-6 w-6 text-teal-600" />}
+        />
+        <StatCard 
+          title="Portfolio Value"
+          value="€99/mo"
+          description={`per commodity`}
+          icon={<TrendingUp className="h-6 w-6 text-teal-600" />}
+        />
+        <StatCard 
+          title="Next Billing"
+          value={new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+          icon={<LineChart className="h-6 w-6 text-teal-600" />}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -47,11 +83,11 @@ export function ProfilePage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="p-4 rounded-lg bg-neutral-50">
                     <div className="text-sm text-neutral-600">Active Commodities</div>
-                    <div className="text-2xl font-semibold mt-1">3</div>
+                    <div className="text-2xl font-semibold mt-1">{userCommodities.length}</div>
                   </div>
                   <div className="p-4 rounded-lg bg-neutral-50">
                     <div className="text-sm text-neutral-600">Monthly Total</div>
-                    <div className="text-2xl font-semibold mt-1">€297</div>
+                    <div className="text-2xl font-semibold mt-1">€{userCommodities.length * 99}</div>
                   </div>
                 </div>
 

@@ -1,15 +1,13 @@
-import { useState } from 'react';
-import { useParams, Navigate, useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useParams, Navigate, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useCommodities } from '@/hooks/use-commodities';
-import { Loader2, Download, AlertTriangle } from 'lucide-react';
-import { UnsubscribeDialog } from './components/unsubscribe-dialog';
-import { WheatTimeHorizonContent } from './components/wheat-time-horizon-content';
 import { cn } from "@/lib/utils";
+import { Download, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase";
+import { Loading3D } from "@/components/ui/loading-3d";
+import { generatePDF } from "@/lib/pdf";
 import {
   Dialog,
   DialogContent,
@@ -18,80 +16,123 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { WheatTimeHorizonContent } from "./components/wheat-time-horizon-content";
+import { UnsubscribeDialog } from "./components/unsubscribe-dialog";
+import { GeneralInfo } from "./components/general-info";
+import { CommodityDetails } from "@/lib/types";
 
 const timeHorizons = [
-  { id: "week", label: "Week" },
-  { id: "month", label: "Month" },
-  { id: "quarter", label: "Quarter" },
-  { id: "6month", label: "6 Months" },
-  { id: "year", label: "Year" },
+  { id: "1w", label: "1 Week" },
+  { id: "4w", label: "4 Weeks" },
+  { id: "12w", label: "12 Weeks" },
+  { id: "26w", label: "26 Weeks" },
+  { id: "52w", label: "52 Weeks" },
 ] as const;
 
 type TimeHorizon = typeof timeHorizons[number]["id"];
 
+// Mock commodity data
+const mockCommodityData: CommodityDetails = {
+  id: "wheat-1",
+  name: "Wheat",
+  symbol: "WHEAT",
+  displayName: "Milling Wheat / Blé de Meunerie",
+  marketCode: "EBM",
+  exchange: "Euronext",
+  category: "Cereals",
+  currentPrice: 201.48,
+  priceChange: 4.82,
+  percentChange: 2.4,
+  weekRange: {
+    low: 180,
+    high: 245,
+    current: 201.48
+  },
+  forecastedRange: {
+    low: 195,
+    high: 255,
+    current: 201.48
+  },
+  tradingHours: {
+    start: "10:45",
+    end: "18:30",
+    timezone: "CET"
+  },
+  volume: {
+    amount: 12.3,
+    unit: "M tons",
+    change: 8
+  },
+  deliveryMonths: ["MAR", "MAY", "SEP", "DEC"],
+  specifications: {
+    minimum: {
+      hagbergFallingNumber: 220,
+      proteinContent: 11,
+      specificWeight: 76
+    },
+    basis: {
+      moistureContent: 15,
+      brokenGrains: 4,
+      impurities: 2
+    }
+  }
+};
+
 export function DynamicCommodityPage() {
   const { commodity } = useParams();
-  const { loading, userCommodities } = useCommodities();
-  const [selectedHorizon, setSelectedHorizon] = useState<TimeHorizon>("quarter");
-  const [showUnsubscribe, setShowUnsubscribe] = useState(false);
-  const [showDownloadDialog, setShowDownloadDialog] = useState(false);
   const navigate = useNavigate();
+  const [selectedHorizon, setSelectedHorizon] = useState<TimeHorizon>("12w");
+  const [showDownloadDialog, setShowDownloadDialog] = useState(false);
+  const [showUnsubscribe, setShowUnsubscribe] = useState(false);
   const { toast } = useToast();
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[200px]">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
-      </div>
-    );
-  }
-
-  // Find the commodity in user's portfolio
-  const commodityData = userCommodities.find(
-    c => c.symbol.toLowerCase() === commodity?.toLowerCase()
-  );
-
-  // If commodity is not in user's portfolio, redirect to dashboard
-  if (!commodityData) {
+  // Redirect if not wheat for now
+  if (commodity?.toLowerCase() !== 'wheat') {
     return <Navigate to="/dashboard" replace />;
   }
 
+  const handleDownload = async () => {
+    setShowDownloadDialog(false);
+    
+    // Show loading toast
+    toast({
+      title: "Generating Report",
+      description: "Please wait while we prepare your report...",
+    });
+
+    // Generate and download PDF
+    const success = await generatePDF();
+
+    // Show result toast
+    if (success) {
+      toast({
+        title: "Report Downloaded",
+        description: "Your market report has been downloaded successfully.",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to generate report. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleUnsubscribe = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      // Update the commodity status to inactive
-      const { error } = await supabase
-        .from('commodity_portfolio')
-        .update({ 
-          status: 'inactive',
-          last_viewed_at: new Date().toISOString()
-        })
-        .eq('commodity_id', commodityData.id)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
+      // Unsubscribe logic here
       toast({
         title: "Successfully Unsubscribed",
-        description: `${commodityData.name} has been removed from your portfolio.`,
+        description: "Wheat has been removed from your portfolio.",
       });
-
-      // Navigate to dashboard with replace to prevent going back
       navigate('/dashboard', { replace: true });
     } catch (error: any) {
-      console.error('Unsubscribe error:', error);
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive",
       });
     }
-  };
-
-  const handleDownload = () => {
-    setShowDownloadDialog(false);
   };
 
   return (
@@ -104,24 +145,24 @@ export function DynamicCommodityPage() {
               <AlertTriangle className="h-5 w-5" />
               Confidentiality Notice
             </DialogTitle>
-            <DialogDescription className="space-y-4 pt-4">
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
-                <p className="font-medium mb-2">Important:</p>
-                <p>
-                  This report contains confidential market analysis and proprietary forecasting data. 
-                  By downloading this report, you agree to:
-                </p>
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                  <li>Not share or distribute this report with third parties</li>
-                  <li>Use the information solely for internal business purposes</li>
-                  <li>Maintain the confidentiality of the data and analysis</li>
-                </ul>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Violation of these terms may result in the suspension of your account and legal action.
-              </p>
-            </DialogDescription>
           </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
+              <div className="font-medium mb-2">Important:</div>
+              <div>
+                This report contains confidential market analysis and proprietary forecasting data. 
+                By downloading this report, you agree to:
+              </div>
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>Not share or distribute this report with third parties</li>
+                <li>Use the information solely for internal business purposes</li>
+                <li>Maintain the confidentiality of the data and analysis</li>
+              </ul>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Violation of these terms may result in the suspension of your account and legal action.
+            </div>
+          </div>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="ghost"
@@ -141,6 +182,14 @@ export function DynamicCommodityPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Unsubscribe Dialog */}
+      <UnsubscribeDialog
+        open={showUnsubscribe}
+        onOpenChange={setShowUnsubscribe}
+        commodityName="Milling Wheat / Blé de Meunerie"
+        onConfirm={handleUnsubscribe}
+      />
+
       {/* Sticky Header */}
       <div className="sticky top-0 z-10 bg-[#F5F7FA]/95 backdrop-blur-sm pb-4">
         {/* Download Report Button */}
@@ -156,7 +205,7 @@ export function DynamicCommodityPage() {
           </Button>
         </div>
 
-        {/* General Information Section Title */}
+        {/* General Information Section */}
         <div className="space-y-1 mb-4">
           <h2 className="text-xl font-semibold">General Information</h2>
           <p className="text-sm text-muted-foreground">
@@ -164,77 +213,10 @@ export function DynamicCommodityPage() {
           </p>
         </div>
 
-        {/* General Information Card */}
-        <Card className="p-6 mb-6">
-          <div className="space-y-6">
-            {/* Title and Basic Info */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Name and Exchange */}
-              <div className="lg:col-span-2">
-                <h1 className="text-2xl font-bold">{commodityData.name}</h1>
-                <div className="flex items-center gap-4 mt-2">
-                  <span className="text-sm text-muted-foreground">{commodityData.exchange}</span>
-                  <span className="text-sm px-2 py-0.5 bg-neutral-100 rounded-md font-medium">
-                    {commodityData.market_code}
-                  </span>
-                </div>
-              </div>
-
-              {/* Current Price */}
-              <Card className="p-4 bg-teal-50/50 border-teal-100">
-                <div className="text-sm font-medium text-teal-600 mb-1">
-                  Current Price
-                </div>
-                <div className="text-2xl font-bold text-teal-700">€201.48</div>
-                <div className="text-sm font-medium text-emerald-600 mt-1">
-                  +2.4% last 3M
-                </div>
-              </Card>
-            </div>
-
-            {/* Price Range and Volume */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* 52W Range */}
-              <Card className="p-4">
-                <div className="text-sm font-medium text-muted-foreground mb-4">
-                  52W Range
-                </div>
-                <div className="relative">
-                  <div className="h-2 bg-neutral-100 rounded-full">
-                    <div 
-                      className="absolute h-2 bg-teal-100 rounded-full"
-                      style={{ width: "40%", left: "20%" }}
-                    />
-                    <div 
-                      className="absolute h-4 w-4 top-1/2 -translate-y-1/2 bg-teal-600 rounded-full border-2 border-white shadow-sm"
-                      style={{ left: "40%" }}
-                    />
-                  </div>
-                  <div className="flex justify-between mt-4 text-sm">
-                    <span className="font-medium text-neutral-600">€180</span>
-                    <span className="font-medium text-teal-600">€201.48</span>
-                    <span className="font-medium text-neutral-600">€245</span>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Volume */}
-              <Card className="p-4">
-                <div className="text-sm font-medium text-muted-foreground mb-2">
-                  Volume (3M)
-                </div>
-                <div className="text-2xl font-semibold">12.3M tons</div>
-                <div className="text-sm font-medium text-emerald-600 mt-1">
-                  +8% last 3M
-                </div>
-              </Card>
-            </div>
-
-            <div className="text-xs text-muted-foreground">
-              Last Updated: 2025-01-22 10:00 AM CET
-            </div>
-          </div>
-        </Card>
+        <GeneralInfo 
+          commodity={mockCommodityData}
+          selectedTimeframe={selectedHorizon}
+        />
 
         {/* Time Horizon Tabs */}
         <div className="mt-6">
@@ -275,7 +257,7 @@ export function DynamicCommodityPage() {
                 className="mt-6"
               >
                 <WheatTimeHorizonContent 
-                  horizon={horizon.id} 
+                  horizon={horizon.id}
                   onUnsubscribe={() => setShowUnsubscribe(true)}
                 />
               </TabsContent>
@@ -283,15 +265,6 @@ export function DynamicCommodityPage() {
           </Tabs>
         </div>
       </div>
-
-      {/* Unsubscribe Dialog */}
-      <UnsubscribeDialog
-        open={showUnsubscribe}
-        onOpenChange={setShowUnsubscribe}
-        commodityName={commodityData.name}
-        commodityId={commodityData.id}
-        onConfirm={handleUnsubscribe}
-      />
     </div>
   );
 }

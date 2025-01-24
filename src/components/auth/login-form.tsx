@@ -12,8 +12,8 @@ export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
   const { signIn } = useAuth();
   const { toast } = useToast();
@@ -35,7 +35,7 @@ export function LoginForm() {
       if (error) {
         // Handle specific error cases
         if (error.includes("Invalid login credentials")) {
-          setError("Invalid email or password. Please try again.");
+          setError("The email or password you entered is incorrect. Please try again.");
         } else if (error.includes("Email not confirmed")) {
           setError("Please confirm your email address before logging in.");
         } else {
@@ -65,6 +65,15 @@ export function LoginForm() {
         {error && (
           <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">
             {error}
+            {error.includes("already registered") && (
+              <Button
+                variant="link"
+                className="px-0 text-sm text-red-500 hover:text-red-600"
+                onClick={() => navigate('/auth?tab=login')}
+              >
+                Click here to log in
+              </Button>
+            )}
           </div>
         )}
         

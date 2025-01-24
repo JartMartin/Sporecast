@@ -10,6 +10,17 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
+    include: ['html2canvas', 'jspdf'],
     exclude: ['lucide-react'],
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'html2canvas': ['html2canvas'],
+          'jspdf': ['jspdf']
+        }
+      }
+    }
+  }
 });

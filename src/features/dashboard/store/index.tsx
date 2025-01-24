@@ -7,6 +7,7 @@ import { ChevronLeft, Search, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { AddCommodityDialog } from "./components/add-commodity-dialog";
+import { Loading3D } from "@/components/ui/loading-3d";
 
 interface Commodity {
   id: string;
@@ -37,7 +38,15 @@ export function CommodityStore() {
           .eq('symbol', 'WHEAT')
           .single();
 
-        if (commodityError) throw commodityError;
+        if (commodityError) {
+          if (commodityError.code === 'PGRST116') {
+            // No data found - this is expected for new users
+            setCommodities([]);
+            setLoading(false);
+            return;
+          }
+          throw commodityError;
+        }
 
         // Check if user has this commodity in portfolio
         const { data: portfolioItem, error: portfolioError } = await supabase
@@ -48,26 +57,32 @@ export function CommodityStore() {
           .eq('status', 'active')
           .maybeSingle();
 
-        if (portfolioError) throw portfolioError;
+        if (portfolioError && portfolioError.code !== 'PGRST116') {
+          throw portfolioError;
+        }
 
         // Map commodity with portfolio status
         const mappedCommodity = {
           id: wheatCommodity.id,
-          name: "Wheat Futures",
+          name: "Milling Wheat / Blé de Meunerie",
           category: wheatCommodity.category,
-          market_code: wheatCommodity.market_code,
-          exchange: wheatCommodity.exchange,
+          market_code: "EBM",
+          exchange: "Euronext",
           status: portfolioItem ? 'portfolio' : 'available'
         };
 
         setCommodities([mappedCommodity]);
       } catch (error: any) {
         console.error('Error fetching commodity:', error);
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
+        
+        // Only show error toast for unexpected errors
+        if (error.message !== 'Not authenticated') {
+          toast({
+            title: "Error",
+            description: "Failed to load commodities. Please try again.",
+            variant: "destructive",
+          });
+        }
       } finally {
         setLoading(false);
       }
@@ -92,8 +107,8 @@ export function CommodityStore() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[200px]">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loading3D />
       </div>
     );
   }
@@ -109,7 +124,7 @@ export function CommodityStore() {
         </Link>
         <h1 className="text-3xl font-bold">Commodity Store</h1>
         <p className="text-muted-foreground">
-          Add Wheat Futures to your portfolio to access real-time forecasts and insights
+          Add Milling Wheat to your portfolio to access real-time forecasts and insights
         </p>
       </div>
 

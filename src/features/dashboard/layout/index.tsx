@@ -5,7 +5,7 @@ import { useState, Suspense } from "react";
 import { cn } from "@/lib/utils";
 import { LoadingPage } from "@/components/ui/loading-page";
 
-export function DashboardLayout() {
+function DashboardLayout() {
   const [isNavCollapsed, setIsNavCollapsed] = useState(false);
 
   return (
@@ -31,4 +31,6 @@ export function DashboardLayout() {
   );
 }
 
+// Make sure to export both as default and named export
+export { DashboardLayout };
 export default DashboardLayout;

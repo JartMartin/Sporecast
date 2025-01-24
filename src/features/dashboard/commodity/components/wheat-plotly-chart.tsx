@@ -1,15 +1,7 @@
+import { Loading3D } from "@/components/ui/loading-3d";
 import { useEffect, useState } from "react";
 import Plot from "react-plotly.js";
 import { supabase } from "@/lib/supabase";
-import { Loader2 } from "lucide-react";
-
-interface WheatForecast {
-  date: string;
-  price: number;
-  is_forecast: boolean;
-  confidence_lower: number | null;
-  confidence_upper: number | null;
-}
 
 interface WheatPlotlyChartProps {
   timeHorizon?: string;
@@ -17,7 +9,7 @@ interface WheatPlotlyChartProps {
 }
 
 export function WheatPlotlyChart({ timeHorizon, className }: WheatPlotlyChartProps) {
-  const [data, setData] = useState<WheatForecast[]>([]);
+  const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,9 +38,8 @@ export function WheatPlotlyChart({ timeHorizon, className }: WheatPlotlyChartPro
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-4">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
-        <p className="text-sm text-muted-foreground">Loading forecast data...</p>
+      <div className="flex items-center justify-center h-full">
+        <Loading3D size="sm" />
       </div>
     );
   }

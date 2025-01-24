@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, TrendingUp } from "lucide-react";
+import { TrendingUp, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PortfolioItem {
@@ -19,51 +18,79 @@ interface PortfolioGridProps {
 }
 
 export function PortfolioGrid({ items, className }: PortfolioGridProps) {
+  // Helper function to transform commodity data for Wheat
+  const transformWheatData = (item: PortfolioItem) => {
+    if (item.symbol === 'WHEAT') {
+      return {
+        ...item,
+        name: 'Milling Wheat / Blé de Meunerie',
+        market_code: 'EBM',
+        exchange: 'Euronext'
+      };
+    }
+    return item;
+  };
+
   return (
-    <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4", className)}>
-      {items.map((item) => (
-        <Link 
-          key={item.id} 
-          to={`/dashboard/${item.name.toLowerCase()}`}
-          className="block group"
-        >
-          <Card className="p-5 h-full transition-all duration-200 hover:shadow-md group-hover:border-neutral-300">
-            <div className="flex flex-col h-full">
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <div>
-                  <h3 className="font-medium text-neutral-900">{item.name}</h3>
+    <div className={cn("space-y-4", className)}>
+      {items.map((item) => {
+        const transformedItem = transformWheatData(item);
+        return (
+          <Link 
+            key={transformedItem.id} 
+            to={`/dashboard/${transformedItem.symbol.toLowerCase()}`}
+            className="block group"
+          >
+            <Card className="transition-all duration-200 hover:shadow-md group-hover:border-neutral-300">
+              <div className="flex items-center p-5">
+                {/* Left Section: Name and Details */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-neutral-900 truncate">
+                    {transformedItem.name}
+                  </h3>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-xs px-1.5 py-0.5 bg-neutral-100 rounded">
-                      {item.market_code}
+                      {transformedItem.market_code}
                     </span>
-                    <span className="text-xs text-neutral-500">
-                      {item.exchange}
+                    <span className="text-xs text-neutral-500 truncate">
+                      {transformedItem.exchange}
                     </span>
                   </div>
                 </div>
-                <div className="rounded-lg bg-teal-50 p-2.5 transition-colors duration-200 group-hover:bg-teal-100">
-                  <TrendingUp className="h-4 w-4 text-teal-600" />
+
+                {/* Middle Section: Price and Volume */}
+                <div className="flex items-center gap-8 mx-8">
+                  {/* Current Price */}
+                  <div className="text-right">
+                    <div className="text-sm font-medium text-neutral-900">€201.48</div>
+                    <div className="text-xs font-medium text-emerald-600">+2.4%</div>
+                  </div>
+
+                  {/* Volume */}
+                  <div className="text-right">
+                    <div className="text-sm font-medium text-neutral-900">12.3M tons</div>
+                    <div className="text-xs font-medium text-emerald-600">+8%</div>
+                  </div>
+                </div>
+
+                {/* Right Section: Icon and Arrow */}
+                <div className="flex items-center gap-4">
+                  <div className="rounded-lg bg-teal-50 p-2.5 transition-colors duration-200 group-hover:bg-teal-100">
+                    <TrendingUp className="h-4 w-4 text-teal-600" />
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-neutral-400 transition-transform duration-200 group-hover:translate-x-1" />
                 </div>
               </div>
 
-              <div className="mt-auto pt-4 flex items-center justify-between">
-                {item.lastViewed && (
-                  <span className="text-xs text-neutral-500">
-                    Last viewed: {item.lastViewed}
-                  </span>
-                )}
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="ml-auto text-sm text-neutral-700 group-hover:text-neutral-900"
-                >
-                  View Details <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </Link>
-      ))}
+              {transformedItem.lastViewed && (
+                <div className="px-5 pb-4 text-xs text-neutral-500">
+                  Last viewed: {transformedItem.lastViewed}
+                </div>
+              )}
+            </Card>
+          </Link>
+        );
+      })}
     </div>
   );
 }

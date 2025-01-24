@@ -16,6 +16,20 @@ interface TrendAnalysisProps {
 }
 
 export function TrendAnalysis({ horizon }: TrendAnalysisProps) {
+  // Helper function to format horizon text
+  const getHorizonText = (horizon: string) => {
+    switch (horizon) {
+      case "1w": return "1 week";
+      case "4w": return "4 weeks";
+      case "12w": return "12 weeks";
+      case "26w": return "26 weeks";
+      case "52w": return "52 weeks";
+      default: return horizon;
+    }
+  };
+
+  const horizonText = getHorizonText(horizon);
+
   return (
     <div className="space-y-6">
       {/* Section Title */}
@@ -23,7 +37,7 @@ export function TrendAnalysis({ horizon }: TrendAnalysisProps) {
         <div className="space-y-1">
           <h2 className="text-xl font-semibold">Trend Analysis</h2>
           <p className="text-sm text-muted-foreground">
-            Historical and future price trend comparison for {horizon} horizon
+            Historical and future price trend comparison for {horizonText} horizon
           </p>
         </div>
       </div>
@@ -35,7 +49,7 @@ export function TrendAnalysis({ horizon }: TrendAnalysisProps) {
             <div className="flex items-center justify-between">
               <div className="space-y-1.5">
                 <h3 className="text-lg font-semibold">Historical Trend Analysis</h3>
-                <p className="text-sm text-muted-foreground">Last quarter price comparison</p>
+                <p className="text-sm text-muted-foreground">Last {horizonText} price comparison</p>
               </div>
               <Dialog>
                 <DialogTrigger asChild>
@@ -52,13 +66,13 @@ export function TrendAnalysis({ horizon }: TrendAnalysisProps) {
                   </DialogHeader>
                   <div className="space-y-6 pt-4">
                     <div>
-                      <h4 className="font-medium mb-2">Last Quarter</h4>
+                      <h4 className="font-medium mb-2">Last {horizonText}</h4>
                       <p className="text-sm text-muted-foreground">
-                        Shows the actual price movements over the past three months, providing a clear view of recent market behavior.
+                        Shows the actual price movements over the past {horizonText}, providing a clear view of recent market behavior.
                       </p>
                     </div>
                     <div>
-                      <h4 className="font-medium mb-2">Same Quarter Last Year</h4>
+                      <h4 className="font-medium mb-2">Same Period Last Year</h4>
                       <p className="text-sm text-muted-foreground">
                         Compares current prices with the same period last year to identify seasonal patterns and year-over-year changes.
                       </p>
@@ -66,7 +80,7 @@ export function TrendAnalysis({ horizon }: TrendAnalysisProps) {
                     <div>
                       <h4 className="font-medium mb-2">5-Year Average</h4>
                       <p className="text-sm text-muted-foreground">
-                        Shows the average price trend for this quarter over the past five years, helping identify long-term patterns and anomalies.
+                        Shows the average price trend for this period over the past five years, helping identify long-term patterns and anomalies.
                       </p>
                     </div>
                   </div>
@@ -75,7 +89,7 @@ export function TrendAnalysis({ horizon }: TrendAnalysisProps) {
             </div>
 
             {/* Historical Chart */}
-            <TrendAnalysisChart />
+            <TrendAnalysisChart horizon={horizonText} />
           </div>
         </Card>
 
@@ -85,7 +99,7 @@ export function TrendAnalysis({ horizon }: TrendAnalysisProps) {
             <div className="flex items-center justify-between">
               <div className="space-y-1.5">
                 <h3 className="text-lg font-semibold">Future Trend Analysis</h3>
-                <p className="text-sm text-muted-foreground">Next quarter price projection</p>
+                <p className="text-sm text-muted-foreground">Next {horizonText} price projection</p>
               </div>
               <Dialog>
                 <DialogTrigger asChild>
@@ -104,7 +118,7 @@ export function TrendAnalysis({ horizon }: TrendAnalysisProps) {
                     <div>
                       <h4 className="font-medium mb-2">Expected Trend</h4>
                       <p className="text-sm text-muted-foreground">
-                        Our AI-powered forecast for the next three months, based on current market conditions, historical patterns, and predictive modeling.
+                        Our AI-powered forecast for the next {horizonText}, based on current market conditions, historical patterns, and predictive modeling.
                       </p>
                     </div>
                     <div>
@@ -125,12 +139,10 @@ export function TrendAnalysis({ horizon }: TrendAnalysisProps) {
             </div>
 
             {/* Future Chart */}
-            <FutureTrendAnalysisChart />
+            <FutureTrendAnalysisChart horizon={horizonText} />
           </div>
         </Card>
       </div>
     </div>
   );
 }
-
-export default TrendAnalysis;

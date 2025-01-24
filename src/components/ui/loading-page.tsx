@@ -1,18 +1,12 @@
-import { Sprout } from "lucide-react";
+import { Loading3D } from "./loading-3d";
 
 export function LoadingPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="loader">
-        <div className="box"></div>
-        <div className="box"></div>
-        <div className="box"></div>
-        <div className="box"></div>
-        <div className="box"></div>
-        <div className="logo">
-          <Sprout />
-        </div>
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-[400px] gap-8">
+      <Loading3D />
+      <p className="text-sm text-muted-foreground animate-pulse">
+        Loading...
+      </p>
     </div>
   );
 }
