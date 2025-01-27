@@ -4,21 +4,21 @@ import { Suspense, lazy } from "react";
 import { LoadingPage } from "@/components/ui/loading-page";
 
 // Lazy load pages with proper default export handling
-const AuthPage = lazy(() => import("@/pages/auth").then(module => ({ default: module.AuthPage })));
-const LandingPage = lazy(() => import("@/pages/landing").then(module => ({ default: module.LandingPage })));
-const FeaturesPage = lazy(() => import("@/pages/features").then(module => ({ default: module.FeaturesPage })));
-const PricingPage = lazy(() => import("@/pages/pricing").then(module => ({ default: module.PricingPage })));
-const StoryPage = lazy(() => import("@/pages/story").then(module => ({ default: module.StoryPage })));
-const SchedulePage = lazy(() => import("@/pages/schedule").then(module => ({ default: module.SchedulePage })));
-const CommoditiesPage = lazy(() => import("@/pages/commodities").then(module => ({ default: module.CommoditiesPage })));
+const AuthPage = lazy(() => import("@/pages/auth"));
+const LandingPage = lazy(() => import("@/pages/landing"));
+const FeaturesPage = lazy(() => import("@/pages/features"));
+const PricingPage = lazy(() => import("@/pages/pricing"));
+const StoryPage = lazy(() => import("@/pages/story"));
+const SchedulePage = lazy(() => import("@/pages/schedule"));
+const CommoditiesPage = lazy(() => import("@/pages/commodities"));
 
 // Dashboard pages
-const DashboardLayout = lazy(() => import("@/features/dashboard/layout").then(module => ({ default: module.DashboardLayout })));
-const DashboardHome = lazy(() => import("@/features/dashboard/home").then(module => ({ default: module.DashboardHome })));
-const CommodityStore = lazy(() => import("@/features/dashboard/store").then(module => ({ default: module.CommodityStore })));
-const ProfilePage = lazy(() => import("@/features/dashboard/profile").then(module => ({ default: module.ProfilePage })));
-const AlertsPage = lazy(() => import("@/features/dashboard/alerts").then(module => ({ default: module.AlertsPage })));
-const CommodityPage = lazy(() => import("@/features/dashboard/commodity").then(module => ({ default: module.DynamicCommodityPage })));
+const DashboardLayout = lazy(() => import("@/features/dashboard/layout"));
+const DashboardHome = lazy(() => import("@/features/dashboard/home"));
+const CommodityStore = lazy(() => import("@/features/dashboard/store"));
+const ProfilePage = lazy(() => import("@/features/dashboard/profile"));
+const AlertsPage = lazy(() => import("@/features/dashboard/alerts"));
+const CommodityPage = lazy(() => import("@/features/dashboard/commodity"));
 
 export function App() {
   return (

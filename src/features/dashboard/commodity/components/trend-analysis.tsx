@@ -93,12 +93,12 @@ export function TrendAnalysis({ horizon }: TrendAnalysisProps) {
           </div>
         </Card>
 
-        {/* Future Trend Analysis */}
+        {/* Forecasted Trend Analysis */}
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1.5">
-                <h3 className="text-lg font-semibold">Future Trend Analysis</h3>
+                <h3 className="text-lg font-semibold">Forecasted Trend Analysis</h3>
                 <p className="text-sm text-muted-foreground">Next {horizonText} price projection</p>
               </div>
               <Dialog>
@@ -109,7 +109,7 @@ export function TrendAnalysis({ horizon }: TrendAnalysisProps) {
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[600px]">
                   <DialogHeader>
-                    <DialogTitle>Future Trend Analysis</DialogTitle>
+                    <DialogTitle>Forecasted Trend Analysis</DialogTitle>
                     <DialogDescription>
                       Understanding projected price trends and market forecasts
                     </DialogDescription>

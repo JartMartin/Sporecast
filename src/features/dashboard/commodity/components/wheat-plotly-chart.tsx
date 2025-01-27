@@ -12,6 +12,16 @@ export function WheatPlotlyChart({ timeHorizon, className }: WheatPlotlyChartPro
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,7 +48,7 @@ export function WheatPlotlyChart({ timeHorizon, className }: WheatPlotlyChartPro
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center h-[200px]">
         <Loading3D size="sm" />
       </div>
     );
@@ -46,7 +56,7 @@ export function WheatPlotlyChart({ timeHorizon, className }: WheatPlotlyChartPro
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-4">
+      <div className="flex flex-col items-center justify-center h-[200px] gap-4">
         <p className="text-sm text-red-500">Error: {error}</p>
         <p className="text-xs text-muted-foreground">Please try again later</p>
       </div>
@@ -63,6 +73,50 @@ export function WheatPlotlyChart({ timeHorizon, className }: WheatPlotlyChartPro
       month: "short",
       day: "numeric",
     });
+  };
+
+  // Mobile-optimized layout
+  const mobileLayout = {
+    height: 300,
+    margin: { t: 10, r: 10, b: 40, l: 50 },
+    xaxis: {
+      showgrid: false,
+      tickangle: -45,
+      nticks: 6,
+      tickfont: { size: 10 }
+    },
+    yaxis: {
+      tickfont: { size: 10 },
+      tickformat: "€,.0f"
+    },
+    legend: {
+      orientation: "h",
+      y: -0.2,
+      x: 0.5,
+      xanchor: "center",
+      font: { size: 10 },
+      itemwidth: 100
+    }
+  };
+
+  // Desktop layout
+  const desktopLayout = {
+    height: 400,
+    margin: { t: 10, r: 10, b: 80, l: 60 },
+    xaxis: {
+      showgrid: true,
+      tickangle: -45,
+      nticks: 10
+    },
+    yaxis: {
+      tickformat: "€,.0f"
+    },
+    legend: {
+      orientation: "h",
+      y: -0.2,
+      x: 0.5,
+      xanchor: "center"
+    }
   };
 
   return (
@@ -120,50 +174,59 @@ export function WheatPlotlyChart({ timeHorizon, className }: WheatPlotlyChartPro
         paper_bgcolor: "rgba(0,0,0,0)",
         plot_bgcolor: "rgba(0,0,0,0)",
         font: {
-          family: "Inter, sans-serif",
+          family: "Inter var, sans-serif",
         },
         xaxis: {
-          title: "Date",
+          title: isMobile ? undefined : "Date",
           gridcolor: "#f1f5f9",
           zeroline: false,
           tickangle: -45,
-          nticks: 10,
+          nticks: isMobile ? 6 : 10,
           tickformat: "%b %d",
           automargin: true,
+          tickfont: {
+            size: isMobile ? 10 : 12
+          }
         },
         yaxis: {
-          title: "Price per tonne (€)",
+          title: isMobile ? undefined : "Price per tonne (€)",
           gridcolor: "#f1f5f9",
           zeroline: false,
-          tickformat: "€,.2f",
+          tickformat: "€,.0f",
+          tickfont: {
+            size: isMobile ? 10 : 12
+          }
         },
-        margin: { t: 10, r: 10, b: 80, l: 60 },
+        ...(isMobile ? mobileLayout : desktopLayout),
         showlegend: true,
         legend: {
           x: 0.5,
-          y: -0.2,
+          y: isMobile ? -0.3 : -0.2,
           xanchor: "center",
           yanchor: "top",
           orientation: "h",
           bgcolor: "rgba(255,255,255,0)",
           borderwidth: 0,
           font: {
-            size: 12,
-            family: "Inter, sans-serif",
+            size: isMobile ? 10 : 12,
+            family: "Inter var, sans-serif",
           },
-          itemwidth: 80,
+          itemwidth: isMobile ? 100 : 80,
           traceorder: "normal",
         },
         hovermode: "x unified",
         hoverlabel: {
           bgcolor: "white",
-          font: { family: "Inter, sans-serif" },
+          font: { 
+            family: "Inter var, sans-serif",
+            size: isMobile ? 10 : 12
+          },
         },
       }}
       config={{
         responsive: true,
         displaylogo: false,
-        displayModeBar: "hover",
+        displayModeBar: isMobile ? false : "hover",
         modeBarButtonsToRemove: [
           "zoom2d",
           "pan2d",
@@ -179,7 +242,12 @@ export function WheatPlotlyChart({ timeHorizon, className }: WheatPlotlyChartPro
         ],
       }}
       className={className}
-      style={{ width: "100%", height: "100%" }}
+      style={{ 
+        width: "100%", 
+        height: "100%",
+        minHeight: isMobile ? "300px" : "400px"
+      }}
+      useResizeHandler={true}
     />
   );
 }

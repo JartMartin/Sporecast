@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 interface FutureTrendAnalysisChartProps {
   className?: string;
+  horizon?: string;
 }
 
 interface DataSeries {
@@ -12,7 +13,7 @@ interface DataSeries {
   visible: boolean;
 }
 
-export function FutureTrendAnalysisChart({ className }: FutureTrendAnalysisChartProps) {
+export function FutureTrendAnalysisChart({ className, horizon }: FutureTrendAnalysisChartProps) {
   // Track visibility state for each line
   const [series, setSeries] = useState<DataSeries[]>([
     { name: "Expected Trend", color: "#0d9488", visible: true },
@@ -83,6 +84,22 @@ export function FutureTrendAnalysisChart({ className }: FutureTrendAnalysisChart
   const todayPrice = expectedTrendData[0].price;
   const todayDate = formatDate(expectedTrendData[0].date);
 
+  // Create present time indicator
+  const presentTimeShape = {
+    type: 'rect',
+    xref: 'x',
+    yref: 'paper',
+    x0: todayDate,
+    x1: todayDate,
+    y0: 0,
+    y1: 1,
+    fillcolor: 'rgba(13, 148, 136, 0.1)',
+    line: {
+      width: 0,
+    },
+    layer: 'below'
+  };
+
   return (
     <div className={cn("w-full h-[400px]", className)}>
       <Plot
@@ -134,31 +151,12 @@ export function FutureTrendAnalysisChart({ className }: FutureTrendAnalysisChart
             visible: series[2].visible,
             hovertemplate: "Date: %{x}<br>Price: €%{y:.2f}<extra></extra>",
           },
-          // Today's marker
-          {
-            x: [todayDate],
-            y: [todayPrice],
-            type: "scatter",
-            mode: "markers",
-            name: "Today",
-            marker: {
-              color: "#22c55e", // text-green-500
-              size: 12,
-              symbol: "circle",
-              line: {
-                color: "#ffffff",
-                width: 2
-              }
-            },
-            showlegend: false,
-            hovertemplate: "Today<br>Price: €%{y:.2f}<extra></extra>",
-          },
         ]}
         layout={{
           paper_bgcolor: "rgba(0,0,0,0)",
           plot_bgcolor: "rgba(0,0,0,0)",
           font: {
-            family: "Inter, sans-serif",
+            family: "Inter var, sans-serif",
           },
           xaxis: {
             title: "Date",
@@ -186,17 +184,18 @@ export function FutureTrendAnalysisChart({ className }: FutureTrendAnalysisChart
             borderwidth: 0,
             font: {
               size: 12,
-              family: "Inter, sans-serif",
+              family: "Inter var, sans-serif",
             },
-            itemwidth: 80,
+            itemwidth: 60,
             traceorder: "normal",
             itemclick: "toggle",
           },
           hovermode: "x unified",
           hoverlabel: {
             bgcolor: "white",
-            font: { family: "Inter, sans-serif" },
+            font: { family: "Inter var, sans-serif" },
           },
+          shapes: [presentTimeShape],
         }}
         config={{
           responsive: true,

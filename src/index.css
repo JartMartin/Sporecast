@@ -37,6 +37,17 @@
   }
 }
 
+/* Hide scrollbar but keep functionality */
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 /* Loading Animation */
 .loader {
   --size: 250px;
@@ -49,6 +60,9 @@
   height: var(--size);
   aspect-ratio: 1;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .loader.loader--sm {

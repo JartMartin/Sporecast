@@ -41,24 +41,40 @@ export function WhySporecast() {
       className="relative w-full overflow-hidden py-24 sm:py-32"
       onMouseMove={handleMouseMove}
     >
-      {/* Enhanced Green Background */}
+      {/* Enhanced Math Notebook Background */}
       <div className="absolute inset-0 -z-10">
-        {/* Base Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-100/80 via-emerald-50 to-teal-50" />
+        {/* Base color */}
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-50 via-white to-emerald-50" />
         
-        {/* Interactive Gradient following mouse */}
+        {/* Graph paper grid - vertical lines */}
         <div 
-          className="absolute inset-0 transition-opacity duration-500"
+          className="absolute inset-0"
           style={{
-            background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(20, 184, 166, 0.2) 0%, rgba(16, 185, 129, 0.15) 30%, transparent 70%)`,
+            backgroundImage: `
+              linear-gradient(to right, rgba(20, 184, 166, 0.1) 1px, transparent 1px),
+              linear-gradient(to right, rgba(20, 184, 166, 0.05) 1px, transparent 1px)
+            `,
+            backgroundSize: '20px 100%, 4px 100%'
+          }}
+        />
+        
+        {/* Graph paper grid - horizontal lines */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
+              linear-gradient(to bottom, rgba(20, 184, 166, 0.1) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(20, 184, 166, 0.05) 1px, transparent 1px)
+            `,
+            backgroundSize: '100% 20px, 100% 4px'
           }}
         />
 
-        {/* Animated Pattern */}
+        {/* Interactive gradient following mouse */}
         <div 
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-75 transition-opacity duration-500"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2314b8a6' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(20, 184, 166, 0.15) 0%, rgba(16, 185, 129, 0.1) 30%, transparent 70%)`,
           }}
         />
 
@@ -105,10 +121,11 @@ export function WhySporecast() {
                   "backdrop-blur-sm",
                   "overflow-hidden"
                 )}>
-                  {/* Animated Pattern */}
+                  {/* Math Paper Pattern */}
                   <div className={cn(
                     "absolute inset-0 transition-opacity duration-300",
-                    "bg-[radial-gradient(#10b98120_1px,transparent_1px)] [background-size:16px_16px]",
+                    "bg-[linear-gradient(rgba(16,185,129,0.1)_1px,transparent_1px),linear-gradient(to_right,rgba(16,185,129,0.1)_1px,transparent_1px)]",
+                    "[background-size:4px_4px]",
                     isHovered ? "opacity-100" : "opacity-0"
                   )} />
 

@@ -71,7 +71,9 @@ export function SporaChat() {
         <Card className={cn(
           "w-[300px] h-[450px] flex flex-col shadow-lg",
           "animate-in slide-in-from-bottom-5 duration-300",
-          "bg-white/95 backdrop-blur-md rounded-2xl border-neutral-200/80"
+          "bg-white/95 backdrop-blur-md rounded-2xl border-neutral-200/80",
+          // Mobile responsive styles
+          "max-w-[calc(100vw-3rem)] max-h-[calc(100vh-6rem)]"
         )}>
           {/* Header */}
           <div className="flex items-center justify-between p-3 border-b bg-gradient-to-r from-teal-500 to-emerald-500 rounded-t-2xl">

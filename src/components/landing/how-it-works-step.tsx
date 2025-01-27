@@ -63,19 +63,41 @@ export function HowItWorksStep({
             <Icon className="h-6 w-6 text-teal-600" />
           </div>
         </div>
-        <div className="relative">
-          <h3 className="text-lg font-bold mb-1.5">{title}</h3>
-          <p className="text-gray-600 leading-relaxed text-sm">{description}</p>
-          <Link 
-            to="/features" 
-            className={cn(
-              "inline-flex items-center gap-2 mt-2 text-sm text-teal-600",
-              "opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            )}
-          >
-            Learn more about this feature
-            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-          </Link>
+
+        <div className={cn(
+          "relative p-6 rounded-xl transition-all duration-300",
+          "bg-white/80 backdrop-blur-sm border border-teal-100/50",
+          "hover:border-teal-200/50 hover:shadow-lg hover:shadow-teal-900/5",
+          isHovered && "transform scale-[1.02]"
+        )}>
+          <div className="relative z-10">
+            <h3 className="text-lg font-bold mb-1.5">{title}</h3>
+            <p className="text-gray-600 leading-relaxed text-sm">{description}</p>
+            <Link 
+              to="/features" 
+              className={cn(
+                "inline-flex items-center gap-2 mt-2 text-sm text-teal-600",
+                "opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              )}
+            >
+              Learn more about this feature
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+
+          {/* Background Pattern */}
+          <div className={cn(
+            "absolute inset-0 rounded-xl transition-opacity duration-300",
+            "bg-[radial-gradient(#10b98120_1px,transparent_1px)] [background-size:16px_16px]",
+            isHovered ? "opacity-100" : "opacity-0"
+          )} />
+
+          {/* Hover Effect */}
+          <div className={cn(
+            "absolute inset-0 rounded-xl transition-opacity duration-300",
+            "bg-gradient-to-br from-teal-50/50 to-emerald-50/50",
+            isHovered ? "opacity-100" : "opacity-0"
+          )} />
         </div>
       </div>
 

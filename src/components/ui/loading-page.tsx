@@ -1,12 +1,9 @@
-import { Loading3D } from "./loading-3d";
+import { Loader2 } from "lucide-react";
 
 export function LoadingPage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] gap-8">
-      <Loading3D />
-      <p className="text-sm text-muted-foreground animate-pulse">
-        Loading...
-      </p>
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
     </div>
   );
 }

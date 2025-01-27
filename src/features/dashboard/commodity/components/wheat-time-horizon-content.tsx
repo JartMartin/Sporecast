@@ -7,13 +7,14 @@ import { AlertDialog } from "@/components/ui/alert-dialog";
 interface WheatTimeHorizonContentProps {
   horizon: string;
   onUnsubscribe: () => void;
+  onSetAlert: () => void;
 }
 
-export function WheatTimeHorizonContent({ horizon, onUnsubscribe }: WheatTimeHorizonContentProps) {
+export function WheatTimeHorizonContent({ horizon, onUnsubscribe, onSetAlert }: WheatTimeHorizonContentProps) {
   // Get horizon-specific data
   const getHorizonData = () => {
     switch (horizon) {
-      case "week":
+      case "1w":
         return {
           volatilityIndex: 25,
           volatilityChange: -5,
@@ -22,7 +23,7 @@ export function WheatTimeHorizonContent({ horizon, onUnsubscribe }: WheatTimeHor
           expectedPrice: 220.50,
           currentPrice: 200.25
         };
-      case "month":
+      case "4w":
         return {
           volatilityIndex: 45,
           volatilityChange: 8,
@@ -31,7 +32,7 @@ export function WheatTimeHorizonContent({ horizon, onUnsubscribe }: WheatTimeHor
           expectedPrice: 235.75,
           currentPrice: 200.25
         };
-      case "quarter":
+      case "12w":
         return {
           volatilityIndex: 55,
           volatilityChange: 12,
@@ -40,7 +41,7 @@ export function WheatTimeHorizonContent({ horizon, onUnsubscribe }: WheatTimeHor
           expectedPrice: 245.80,
           currentPrice: 200.25
         };
-      case "6month":
+      case "26w":
         return {
           volatilityIndex: 75,
           volatilityChange: 15,
@@ -49,7 +50,7 @@ export function WheatTimeHorizonContent({ horizon, onUnsubscribe }: WheatTimeHor
           expectedPrice: 255.90,
           currentPrice: 200.25
         };
-      case "year":
+      case "52w":
         return {
           volatilityIndex: 85,
           volatilityChange: 18,
@@ -70,7 +71,6 @@ export function WheatTimeHorizonContent({ horizon, onUnsubscribe }: WheatTimeHor
     }
   };
 
-  const [showAlert, setShowAlert] = useState(false);
   const data = getHorizonData();
 
   return (
@@ -84,7 +84,7 @@ export function WheatTimeHorizonContent({ horizon, onUnsubscribe }: WheatTimeHor
         trendChange={data.trendChange}
         expectedPrice={data.expectedPrice}
         currentPrice={data.currentPrice}
-        onSetAlert={() => setShowAlert(true)}
+        onSetAlert={onSetAlert}
       />
 
       {/* Trend Analysis Section */}
@@ -94,14 +94,6 @@ export function WheatTimeHorizonContent({ horizon, onUnsubscribe }: WheatTimeHor
       <ModelPerformanceAnalysis 
         horizon={horizon} 
         onUnsubscribe={onUnsubscribe}
-      />
-
-      {/* Alert Dialog */}
-      <AlertDialog
-        open={showAlert}
-        onOpenChange={setShowAlert}
-        title="Set Price Alert"
-        description="Configure price alerts for this commodity"
       />
     </div>
   );

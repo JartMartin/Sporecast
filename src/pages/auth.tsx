@@ -40,3 +40,5 @@ export function AuthPage({ initialTab }: AuthPageProps) {
     </div>
   );
 }
+
+export default AuthPage;

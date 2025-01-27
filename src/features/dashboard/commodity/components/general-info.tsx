@@ -75,10 +75,10 @@ export function GeneralInfo({ commodity, selectedTimeframe }: GeneralInfoProps) 
               <div className="p-4">
                 <div className="text-sm font-medium text-neutral-600">Volume</div>
                 <div className="text-2xl font-bold text-neutral-900 mt-1">
-                  46.53K
+                  {commodity.volume.amount}{commodity.volume.unit}
                 </div>
                 <div className="text-sm font-medium text-emerald-600 mt-1">
-                  +5.3% from last {timeframeText}
+                  +{commodity.volume.change}% from last {timeframeText}
                 </div>
               </div>
             </Card>
@@ -109,17 +109,17 @@ export function GeneralInfo({ commodity, selectedTimeframe }: GeneralInfoProps) 
                 </div>
 
                 {/* Delivery Months */}
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-teal-50 flex items-center justify-center">
+                <div className="flex items-start gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-teal-50 flex items-center justify-center flex-shrink-0">
                     <TrendingUp className="h-4 w-4 text-teal-600" />
                   </div>
                   <div>
                     <div className="text-xs text-neutral-500">Delivery Months</div>
-                    <div className="flex flex-wrap gap-1 mt-1">
+                    <div className="flex flex-col gap-1 mt-1">
                       {commodity.deliveryMonths.map((month) => (
                         <span 
                           key={month}
-                          className="inline-flex items-center rounded-md bg-teal-50 px-2 py-1 text-xs font-medium text-teal-700 ring-1 ring-inset ring-teal-700/10"
+                          className="inline-flex items-center rounded-md bg-teal-50 px-2 py-1 text-xs font-medium text-teal-700 ring-1 ring-inset ring-teal-700/10 w-fit"
                         >
                           {month}
                         </span>

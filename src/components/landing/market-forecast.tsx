@@ -15,7 +15,7 @@ export function MarketForecast({ isVisible }: MarketForecastProps) {
       {/* Container for overlapping cards */}
       <div className="relative">
         {/* Analytics Card (Top Layer) */}
-        <div className="absolute top-[calc(95%-20px)] -right-4 z-10 group">
+        <div className="absolute top-[calc(85%-20px)] -right-4 z-10 group">
           <div className="relative flex w-[200px] rounded-xl bg-white border shadow-sm p-2.5 transition-all duration-300 group-hover:shadow-md group-hover:border-neutral-300">
             <div className="relative flex-1">
               <div className="mb-2 flex items-center justify-between">
@@ -51,7 +51,7 @@ export function MarketForecast({ isVisible }: MarketForecastProps) {
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-medium text-neutral-900">Daily food commodity forecasting</h3>
+                <h3 className="text-sm font-medium text-neutral-900">Daily Food Commodity Forecasting</h3>
                 <div className="flex items-center gap-1.5">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
@@ -66,7 +66,7 @@ export function MarketForecast({ isVisible }: MarketForecastProps) {
             </div>
 
             <div className="space-y-4">
-              <div className="h-[250px] w-full">
+              <div className="h-[220px] w-full">
                 <ForecastLine />
               </div>
               
