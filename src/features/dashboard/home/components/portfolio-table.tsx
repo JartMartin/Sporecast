@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -8,10 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { ArrowUpDown, ArrowRight, TrendingUp, Info, BarChart2 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Card } from "@/components/ui/card";
+import { ArrowUpDown, ArrowRight, TrendingUp, Info } from "lucide-react";
 
 interface PortfolioItem {
   id: string;
@@ -39,7 +40,9 @@ export function PortfolioTable({ items, className }: PortfolioTableProps) {
     if (item.symbol === 'WHEAT') {
       return {
         ...item,
-        name: 'Milling Wheat / Blé de Meunerie'
+        name: 'Milling Wheat / Blé de Meunerie',
+        market_code: 'EBM',
+        exchange: 'Euronext'
       };
     }
     return item;
@@ -144,32 +147,8 @@ export function PortfolioTable({ items, className }: PortfolioTableProps) {
     <div className="hidden lg:block rounded-md border bg-white">
       <Table>
         <TableHeader>
-          <TableRow className="border-b-0">
-            {/* Empty Column Group Header */}
-            <TableHead colSpan={1} className="border-r" />
-            <TableHead colSpan={2} className="text-center">
-              <div className="flex items-center justify-center gap-2 py-2">
-                <BarChart2 className="h-4 w-4 text-neutral-600" />
-                <span className="text-sm font-medium text-neutral-700">
-                  Current Situation
-                </span>
-              </div>
-            </TableHead>
-            <TableHead 
-              colSpan={6} 
-              className="text-center border-l"
-            >
-              <div className="flex items-center justify-center gap-2 py-2">
-                <TrendingUp className="h-4 w-4 text-teal-600" />
-                <span className="text-sm font-medium text-teal-700">
-                  Forecasted Prices
-                </span>
-              </div>
-            </TableHead>
-            <TableHead />
-          </TableRow>
           <TableRow>
-            <TableHead className="w-[300px] border-r">
+            <TableHead>
               <SortButton field="name">Commodity Name</SortButton>
             </TableHead>
             <TableHead>
@@ -182,8 +161,8 @@ export function PortfolioTable({ items, className }: PortfolioTableProps) {
                 <SortButton field="volume">Volume</SortButton>
               </div>
             </TableHead>
-            <TableHead className="text-center border-l w-[120px]">
-              Forecast Graph
+            <TableHead>
+              <div className="text-center">Forecast Graph</div>
             </TableHead>
             <TableHead>
               <div className="text-right">
@@ -226,12 +205,6 @@ export function PortfolioTable({ items, className }: PortfolioTableProps) {
               '52w': { price: 235.80, change: 17.03 }
             };
 
-            // Generate sparkline data points
-            const sparklineData = [200, 205, 203, 208, 210, 215, 212, 218];
-            const maxValue = Math.max(...sparklineData);
-            const minValue = Math.min(...sparklineData);
-            const range = maxValue - minValue;
-            
             return (
               <TableRow
                 key={transformedItem.id}
@@ -280,11 +253,7 @@ export function PortfolioTable({ items, className }: PortfolioTableProps) {
                       preserveAspectRatio="none"
                     >
                       <path
-                        d={`M 0 ${30 - ((sparklineData[0] - minValue) / range) * 25} ${sparklineData.map((value, index) => {
-                          const x = (index / (sparklineData.length - 1)) * 100;
-                          const y = 30 - ((value - minValue) / range) * 25;
-                          return `L ${x} ${y}`;
-                        }).join(' ')}`}
+                        d="M 0 15 L20 10 L40 20 L60 5 L80 15 L100 10"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="1.5"

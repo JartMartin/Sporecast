@@ -17,12 +17,10 @@ export function HeroSection({ isVisible }: HeroSectionProps) {
   useEffect(() => {
     if (!isVisible) return;
 
-    // Trigger title reveal after a short delay
     const titleTimer = setTimeout(() => {
       setShowTitle(true);
     }, 300);
 
-    // Trigger highlight effect after title reveal
     const highlightTimer = setTimeout(() => {
       setShowHighlight(true);
     }, 800);
@@ -47,14 +45,13 @@ export function HeroSection({ isVisible }: HeroSectionProps) {
             Academically Driven, Economically Guided, Mathematically Powered
           </Badge>
 
-          {/* Reveal Animation Title */}
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight leading-tight overflow-hidden">
             <span className="inline-block">
               <span className={cn(
                 "inline-block transition-transform duration-700 ease-out",
                 showTitle ? "translate-y-0" : "translate-y-full"
               )}>
-                Stay Ahead of{" "}
+                Stay Ahead of&nbsp;
               </span>
             </span>
             <span className="relative inline-block">
@@ -67,17 +64,17 @@ export function HeroSection({ isVisible }: HeroSectionProps) {
                 showTitle ? "translate-y-0" : "translate-y-full",
                 showHighlight ? "bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent" : "text-gray-900"
               )}>
-                Food Commodity Markets{" "}
+                Food Commodity Markets
               </span>
             </span>
-            <span className="inline-flex items-center gap-2">
+            <span className="inline-flex items-center">
               <span className={cn(
-                "inline-block transition-transform duration-700 ease-out delay-100",
+                "inline-block transition-transform duration-700 ease-out delay-100 ml-1",
                 showTitle ? "translate-y-0" : "translate-y-full"
               )}>
                 with Data-Driven Forecasting
               </span>
-              <div className="relative flex h-2 w-2 ml-1">
+              <div className="relative flex h-2 w-2 ml-1 translate-y-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500" />
               </div>
@@ -85,7 +82,6 @@ export function HeroSection({ isVisible }: HeroSectionProps) {
           </h1>
         </div>
 
-        {/* Fixed height container for description */}
         <div className="h-[72px] mt-8">
           <p className={cn(
             "text-lg text-gray-600 max-w-2xl transition-all duration-1000 delay-200",
@@ -100,7 +96,6 @@ export function HeroSection({ isVisible }: HeroSectionProps) {
         "relative flex flex-col sm:flex-row items-stretch sm:items-center gap-4 max-w-2xl mx-auto transition-all duration-1000 delay-400",
         isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
       )}>
-        {/* Primary CTA */}
         <div className="flex-1">
           <Link to="/auth?tab=signup">
             <Button 
@@ -118,7 +113,6 @@ export function HeroSection({ isVisible }: HeroSectionProps) {
           </p>
         </div>
 
-        {/* Secondary CTA */}
         <div className="flex-1">
           <Link to="/schedule">
             <Button 
