@@ -20,9 +20,10 @@ export interface CommodityBase {
   id: string;
   name: string;
   symbol: string;
-  marketCode: string;
-  exchange: string;
   category: string;
+  market_code: string;
+  exchange: string;
+  status: 'available' | 'coming-soon';
 }
 
 export interface PriceRange {
@@ -37,21 +38,8 @@ export interface TradingHours {
   timezone: string;
 }
 
-export interface Specifications {
-  minimum: {
-    hagbergFallingNumber: number;
-    proteinContent: number;
-    specificWeight: number;
-  };
-  basis: {
-    moistureContent: number;
-    brokenGrains: number;
-    impurities: number;
-  };
-}
-
 export interface CommodityDetails extends CommodityBase {
-  displayName: string;
+  display_name: string;
   currentPrice: number;
   priceChange: number;
   percentChange: number;
@@ -64,7 +52,6 @@ export interface CommodityDetails extends CommodityBase {
     change: number;
   };
   deliveryMonths: string[];
-  specifications: Specifications;
 }
 
 export interface PortfolioCommodity extends CommodityBase {

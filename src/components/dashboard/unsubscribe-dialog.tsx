@@ -8,9 +8,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
@@ -19,6 +16,7 @@ interface UnsubscribeDialogProps {
   onOpenChange: (open: boolean) => void;
   commodityName: string;
   commodityId: string;
+  onConfirm: () => Promise<void>;
 }
 
 export function UnsubscribeDialog({
@@ -26,44 +24,14 @@ export function UnsubscribeDialog({
   onOpenChange,
   commodityName,
   commodityId,
+  onConfirm,
 }: UnsubscribeDialogProps) {
-  const { toast } = useToast();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const handleUnsubscribe = async () => {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      // Update the commodity status to inactive
-      const { error } = await supabase
-        .from('commodity_portfolio')
-        .update({ status: 'inactive' })
-        .eq('commodity_id', commodityId)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      // Close dialog first to prevent any state updates on unmounted components
-      onOpenChange(false);
-
-      // Show success message
-      toast({
-        title: "Successfully Unsubscribed",
-        description: `${commodityName} has been removed from your portfolio.`,
-      });
-
-      // Navigate to dashboard with replace to prevent going back to the unsubscribed commodity
-      navigate('/dashboard', { replace: true });
-    } catch (error: any) {
-      console.error('Unsubscribe error:', error);
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      await onConfirm();
     } finally {
       setLoading(false);
     }
@@ -109,3 +77,5 @@ export function UnsubscribeDialog({
     </AlertDialog>
   );
 }
+
+export default UnsubscribeDialog;

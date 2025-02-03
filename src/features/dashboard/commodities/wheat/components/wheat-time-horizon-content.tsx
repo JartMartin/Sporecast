@@ -1,17 +1,23 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { ForecastOverview } from "./forecast-overview";
 import { TrendAnalysis } from "./trend-analysis";
 import { ModelPerformanceAnalysis } from "./model-performance-analysis";
+import { ModelInfoCard } from "./model-info-card";
 import { AlertDialog } from "@/components/dashboard/alert-dialog";
+import { UnsubscribeButton } from "./unsubscribe-button";
 
 interface WheatTimeHorizonContentProps {
   horizon: string;
+  onUnsubscribe: () => void;
+  onSetAlert: () => void;
 }
 
-export function WheatTimeHorizonContent({ horizon }: WheatTimeHorizonContentProps) {
+export function WheatTimeHorizonContent({ horizon, onUnsubscribe, onSetAlert }: WheatTimeHorizonContentProps) {
+  const [showAlert, setShowAlert] = useState(false);
+  const data = getHorizonData();
+
   // Get horizon-specific data
-  const getHorizonData = () => {
+  function getHorizonData() {
     switch (horizon) {
       case "week":
         return {
@@ -68,10 +74,7 @@ export function WheatTimeHorizonContent({ horizon }: WheatTimeHorizonContentProp
           currentPrice: 200.25
         };
     }
-  };
-
-  const [showAlert, setShowAlert] = useState(false);
-  const data = getHorizonData();
+  }
 
   return (
     <div className="space-y-6">
@@ -87,11 +90,17 @@ export function WheatTimeHorizonContent({ horizon }: WheatTimeHorizonContentProp
         onSetAlert={() => setShowAlert(true)}
       />
 
+      {/* Model Performance Analysis Section */}
+      <ModelPerformanceAnalysis horizon={horizon} />
+
       {/* Trend Analysis Section */}
       <TrendAnalysis horizon={horizon} />
 
-      {/* Model Performance Analysis Section */}
-      <ModelPerformanceAnalysis horizon={horizon} />
+      {/* Machine Learning Model Information */}
+      <ModelInfoCard />
+
+      {/* Unsubscribe Button */}
+      <UnsubscribeButton onClick={onUnsubscribe} />
 
       {/* Alert Dialog */}
       <AlertDialog
@@ -104,3 +113,5 @@ export function WheatTimeHorizonContent({ horizon }: WheatTimeHorizonContentProp
     </div>
   );
 }
+
+export default WheatTimeHorizonContent;

@@ -1,42 +1,202 @@
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { WheatHeader } from "./components/wheat-header";
-import { WheatPlotlyChart } from "./components/wheat-plotly-chart";
 import { WheatTimeHorizonContent } from "./components/wheat-time-horizon-content";
-import { Download, AlertTriangle } from "lucide-react";
+import { GeneralInfo } from "./components/general-info";
+import { UnsubscribeDialog } from "@/components/dashboard/unsubscribe-dialog";
+import { Download, AlertTriangle, Loader2, ChevronLeft } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
+import { generatePDF } from "@/lib/pdf";
+import { CommodityDetails } from "@/lib/types";
+import { Loading3D } from "@/components/ui/loading-3d";
 
 const timeHorizons = [
-  { id: "week", label: "Week" },
-  { id: "month", label: "Month" },
-  { id: "quarter", label: "Quarter" },
-  { id: "6month", label: "6 Months" },
-  { id: "year", label: "Year" },
+  { id: "1w", label: "1 Week" },
+  { id: "4w", label: "4 Weeks" },
+  { id: "12w", label: "12 Weeks" },
+  { id: "26w", label: "26 Weeks" },
+  { id: "52w", label: "52 Weeks" },
 ] as const;
 
 type TimeHorizon = typeof timeHorizons[number]["id"];
 
 export function WheatPage() {
-  const [selectedHorizon, setSelectedHorizon] = useState<TimeHorizon>("quarter");
+  const [selectedHorizon, setSelectedHorizon] = useState<TimeHorizon>("12w");
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
+  const [showUnsubscribe, setShowUnsubscribe] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [hasAccess, setHasAccess] = useState(false);
+  const [commodityDetails, setCommodityDetails] = useState<CommodityDetails | null>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleDownload = () => {
+  useEffect(() => {
+    const checkAccess = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          navigate('/auth');
+          return;
+        }
+
+        // Get wheat commodity details
+        const { data: wheat, error: wheatError } = await supabase
+          .from('commodities')
+          .select('*')
+          .eq('symbol', 'WHEAT')
+          .single();
+
+        if (wheatError || !wheat) {
+          throw new Error('Wheat commodity not found');
+        }
+
+        // Check if user has access
+        const { data: portfolio, error: portfolioError } = await supabase
+          .from('commodity_portfolio')
+          .select('status')
+          .eq('user_id', user.id)
+          .eq('commodity_id', wheat.id)
+          .eq('status', 'active')
+          .single();
+
+        if (portfolioError || !portfolio) {
+          navigate('/dashboard/store');
+          return;
+        }
+
+        // Transform commodity data
+        const commodityDetails: CommodityDetails = {
+          id: wheat.id,
+          name: wheat.name,
+          symbol: wheat.symbol,
+          category: wheat.category,
+          market_code: wheat.market_code,
+          exchange: wheat.exchange,
+          display_name: wheat.display_name,
+          currentPrice: 201.48,
+          priceChange: 4.82,
+          percentChange: 2.4,
+          weekRange: {
+            low: 180,
+            high: 245,
+            current: 201.48
+          },
+          forecastedRange: {
+            low: 195,
+            high: 260,
+            current: 201.48
+          },
+          tradingHours: {
+            start: wheat.trading_hours_start,
+            end: wheat.trading_hours_end,
+            timezone: wheat.trading_hours_timezone
+          },
+          volume: {
+            amount: 12.3,
+            unit: "M tons",
+            change: 8
+          },
+          deliveryMonths: wheat.delivery_months || []
+        };
+
+        setCommodityDetails(commodityDetails);
+        setHasAccess(true);
+      } catch (error) {
+        console.error('Error checking access:', error);
+        navigate('/dashboard/store');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAccess();
+  }, [navigate]);
+
+  const handleUnsubscribe = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data: wheat } = await supabase
+        .from('commodities')
+        .select('id')
+        .eq('symbol', 'WHEAT')
+        .single();
+
+      if (!wheat) throw new Error('Wheat commodity not found');
+
+      const { error } = await supabase
+        .from('commodity_portfolio')
+        .update({ status: 'inactive' })
+        .eq('user_id', user.id)
+        .eq('commodity_id', wheat.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Successfully unsubscribed from Wheat commodity.",
+      });
+
+      navigate('/dashboard', { replace: true });
+    } catch (error: any) {
+      console.error('Error unsubscribing:', error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownload = async () => {
+    const success = await generatePDF();
+    if (success) {
+      toast({
+        title: "Success",
+        description: "Report downloaded successfully.",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to generate report. Please try again.",
+        variant: "destructive",
+      });
+    }
     setShowDownloadDialog(false);
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[200px]">
+        <Loading3D />
+      </div>
+    );
+  }
+
+  if (!hasAccess || !commodityDetails) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen">
+    <div className="space-y-6">
+      {/* Back Navigation */}
+      <div className="flex items-center justify-between">
+        <Link
+          to="/dashboard"
+          className="group flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+          Back to My Commodities
+        </Link>
+      </div>
+
       {/* Download Warning Dialog */}
       <Dialog open={showDownloadDialog} onOpenChange={setShowDownloadDialog}>
         <DialogContent>
@@ -82,147 +242,76 @@ export function WheatPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-10 bg-[#F5F7FA]/95 backdrop-blur-sm pb-4">
-        {/* Download Report Button */}
-        <div className="flex justify-end mb-4">
-          <Button
-            variant="outline"
-            size="lg"
-            className="gap-2 border-2 border-teal-600/20 hover:border-teal-600/40 bg-white hover:bg-teal-50/50"
-            onClick={() => setShowDownloadDialog(true)}
-          >
-            <Download className="h-4 w-4" />
-            Download Report
-          </Button>
-        </div>
+      {/* Header */}
+      <WheatHeader 
+        onDownload={() => setShowDownloadDialog(true)} 
+        displayName={commodityDetails.display_name}
+      />
 
-        {/* General Information Section Title */}
-        <div className="space-y-1 mb-4">
-          <h2 className="text-xl font-semibold">General Information</h2>
-          <p className="text-sm text-muted-foreground">
-            Key market details and current trading information
-          </p>
-        </div>
+      {/* General Information */}
+      <GeneralInfo 
+        commodity={commodityDetails}
+        selectedTimeframe={selectedHorizon}
+      />
 
-        {/* General Information Card */}
-        <Card className="p-6 mb-6">
-          <div className="space-y-6">
-            {/* Title and Basic Info */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Name and Exchange */}
-              <div className="lg:col-span-2">
-                <h1 className="text-2xl font-bold">Milling Wheat (MATIF)</h1>
-                <div className="flex items-center gap-4 mt-2">
-                  <span className="text-sm px-2 py-0.5 bg-neutral-100 rounded-md font-medium">
-                    MWT
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    Euronext Paris
-                  </span>
-                </div>
-              </div>
-
-              {/* Current Price */}
-              <Card className="p-4 bg-teal-50/50 border-teal-100">
-                <div className="text-sm font-medium text-teal-600 mb-1">
-                  Current Price
-                </div>
-                <div className="text-2xl font-bold text-teal-700">€201.48</div>
-                <div className="text-sm font-medium text-emerald-600 mt-1">
-                  +2.4% last 3M
-                </div>
-              </Card>
+      {/* Time Horizon Tabs */}
+      <div className="mt-6">
+        <Tabs 
+          value={selectedHorizon} 
+          onValueChange={(value) => setSelectedHorizon(value as TimeHorizon)}
+          className="w-full"
+        >
+          <div className="flex flex-col items-center gap-4">
+            <div className="inline-flex items-center rounded-full px-3 py-1 bg-teal-50/50 border border-teal-100/50">
+              <span className="text-sm text-teal-600/80 font-medium">
+                Select preferred scope
+              </span>
             </div>
-
-            {/* Price Range and Volume */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* 52W Range */}
-              <Card className="p-4">
-                <div className="text-sm font-medium text-muted-foreground mb-4">
-                  52W Range
-                </div>
-                <div className="relative">
-                  <div className="h-2 bg-neutral-100 rounded-full">
-                    <div 
-                      className="absolute h-2 bg-teal-100 rounded-full"
-                      style={{ width: "40%", left: "20%" }}
-                    />
-                    <div 
-                      className="absolute h-4 w-4 top-1/2 -translate-y-1/2 bg-teal-600 rounded-full border-2 border-white shadow-sm"
-                      style={{ left: "40%" }}
-                    />
-                  </div>
-                  <div className="flex justify-between mt-4 text-sm">
-                    <span className="font-medium text-neutral-600">€180</span>
-                    <span className="font-medium text-teal-600">€201.48</span>
-                    <span className="font-medium text-neutral-600">€245</span>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Volume */}
-              <Card className="p-4">
-                <div className="text-sm font-medium text-muted-foreground mb-2">
-                  Volume (3M)
-                </div>
-                <div className="text-2xl font-semibold">12.3M tons</div>
-                <div className="text-sm font-medium text-emerald-600 mt-1">
-                  +8% last 3M
-                </div>
-              </Card>
-            </div>
-
-            <div className="text-xs text-muted-foreground">
-              Last Updated: 2025-01-22 10:00 AM CET
-            </div>
+            <TabsList className="bg-white border-2 border-teal-100 rounded-xl h-12 p-1.5 shadow-sm">
+              {timeHorizons.map((horizon) => (
+                <TabsTrigger
+                  key={horizon.id}
+                  value={horizon.id}
+                  className={cn(
+                    "px-6 h-9 text-sm font-medium rounded-lg transition-all duration-200",
+                    "data-[state=active]:bg-gradient-to-br data-[state=active]:from-teal-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white",
+                    "data-[state=active]:shadow-sm",
+                    "hover:text-teal-700 data-[state=active]:hover:text-white"
+                  )}
+                >
+                  {horizon.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
           </div>
-        </Card>
 
-        {/* Time Horizon Tabs */}
-        <div className="mt-6">
-          <Tabs 
-            value={selectedHorizon} 
-            onValueChange={(value) => setSelectedHorizon(value as TimeHorizon)}
-            className="w-full"
-          >
-            <div className="flex flex-col items-center gap-4">
-              <div className="inline-flex items-center rounded-full px-3 py-1 bg-teal-50/50 border border-teal-100/50">
-                <span className="text-sm text-teal-600/80 font-medium">
-                  Select preferred scope
-                </span>
-              </div>
-              <TabsList className="bg-white border-2 border-teal-100 rounded-xl h-12 p-1.5 shadow-sm">
-                {timeHorizons.map((horizon) => (
-                  <TabsTrigger
-                    key={horizon.id}
-                    value={horizon.id}
-                    className={cn(
-                      "px-6 h-9 text-sm font-medium rounded-lg transition-all duration-200",
-                      "data-[state=active]:bg-gradient-to-br data-[state=active]:from-teal-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white",
-                      "data-[state=active]:shadow-sm",
-                      "hover:text-teal-700 data-[state=active]:hover:text-white"
-                    )}
-                  >
-                    {horizon.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </div>
-
-            {/* Tab Content */}
-            {timeHorizons.map((horizon) => (
-              <TabsContent 
-                key={horizon.id} 
-                value={horizon.id}
-                className="mt-6"
-              >
-                <WheatTimeHorizonContent horizon={horizon.id} />
-              </TabsContent>
-            ))}
-          </Tabs>
-        </div>
+          {/* Tab Content */}
+          {timeHorizons.map((horizon) => (
+            <TabsContent 
+              key={horizon.id} 
+              value={horizon.id}
+              className="mt-6"
+            >
+              <Suspense fallback={<Loading3D />}>
+                <WheatTimeHorizonContent 
+                  horizon={horizon.id} 
+                  onUnsubscribe={() => setShowUnsubscribe(true)}
+                  onSetAlert={() => {}}
+                />
+              </Suspense>
+            </TabsContent>
+          ))}
+        </Tabs>
       </div>
+
+      {/* Unsubscribe Dialog */}
+      <UnsubscribeDialog
+        open={showUnsubscribe}
+        onOpenChange={setShowUnsubscribe}
+        commodityName={commodityDetails.display_name}
+        commodityId="wheat"
+        onConfirm={handleUnsubscribe}
+      />
     </div>
   );
 }

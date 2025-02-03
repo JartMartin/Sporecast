@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 interface TrendAnalysisChartProps {
   className?: string;
+  horizon?: string;
 }
 
 interface DataSeries {
@@ -12,12 +13,12 @@ interface DataSeries {
   visible: boolean;
 }
 
-export function TrendAnalysisChart({ className }: TrendAnalysisChartProps) {
+export function TrendAnalysisChart({ className, horizon }: TrendAnalysisChartProps) {
   // Track visibility state for each line
-  const [series, setSeries] = useState<DataSeries[]>([
-    { name: "Last Quarter", color: "#0d9488", visible: true },
-    { name: "Same Quarter Last Year", color: "#f97316", visible: true },
-    { name: "5-Year Average", color: "#6b7280", visible: true },
+  const [series] = useState<DataSeries[]>([
+    { name: "Last 12 Weeks – This Year", color: "#0d9488", visible: true },
+    { name: "Last 12 Weeks – Last Year", color: "#f97316", visible: true },
+    { name: "Last 12 Weeks – 2 Years Ago", color: "#6b7280", visible: true },
   ]);
 
   // Generate smoother sample data using cubic interpolation
@@ -83,6 +84,22 @@ export function TrendAnalysisChart({ className }: TrendAnalysisChartProps) {
   const todayPrice = lastQuarterData[lastQuarterData.length - 1].price;
   const todayDate = formatDate(lastQuarterData[lastQuarterData.length - 1].date);
 
+  // Create present time indicator
+  const presentTimeShape = {
+    type: 'rect',
+    xref: 'x',
+    yref: 'paper',
+    x0: todayDate,
+    x1: todayDate,
+    y0: 0,
+    y1: 1,
+    fillcolor: 'rgba(13, 148, 136, 0.1)',
+    line: {
+      width: 0,
+    },
+    layer: 'below'
+  };
+
   return (
     <div className={cn("w-full h-[400px]", className)}>
       <Plot
@@ -93,7 +110,7 @@ export function TrendAnalysisChart({ className }: TrendAnalysisChartProps) {
             y: lastQuarterData.map(d => d.price),
             type: "scatter",
             mode: "lines",
-            name: "Last Quarter",
+            name: series[0].name,
             line: { 
               color: series[0].color, 
               width: 2,
@@ -108,7 +125,7 @@ export function TrendAnalysisChart({ className }: TrendAnalysisChartProps) {
             y: lastYearData.map(d => d.price),
             type: "scatter",
             mode: "lines",
-            name: "Same Quarter Last Year",
+            name: series[1].name,
             line: { 
               color: series[1].color, 
               width: 2,
@@ -123,7 +140,7 @@ export function TrendAnalysisChart({ className }: TrendAnalysisChartProps) {
             y: fiveYearAvgData.map(d => d.price),
             type: "scatter",
             mode: "lines",
-            name: "5-Year Average",
+            name: series[2].name,
             line: { 
               color: series[2].color, 
               width: 2,
@@ -132,25 +149,6 @@ export function TrendAnalysisChart({ className }: TrendAnalysisChartProps) {
             },
             visible: series[2].visible,
             hovertemplate: "Date: %{x}<br>Price: €%{y:.2f}<extra></extra>",
-          },
-          // Today's marker
-          {
-            x: [todayDate],
-            y: [todayPrice],
-            type: "scatter",
-            mode: "markers",
-            name: "Today",
-            marker: {
-              color: "#22c55e", // text-green-500
-              size: 12,
-              symbol: "circle",
-              line: {
-                color: "#ffffff",
-                width: 2
-              }
-            },
-            showlegend: false,
-            hovertemplate: "Today<br>Price: €%{y:.2f}<extra></extra>",
           },
         ]}
         layout={{
@@ -177,25 +175,27 @@ export function TrendAnalysisChart({ className }: TrendAnalysisChartProps) {
           showlegend: true,
           legend: {
             x: 0.5,
-            y: -0.2,
+            y: -0.3,
             xanchor: "center",
             yanchor: "top",
-            orientation: "h",
+            orientation: "v",
             bgcolor: "rgba(255,255,255,0)",
             borderwidth: 0,
             font: {
-              size: 12,
+              size: 11,
               family: "Inter var, sans-serif",
             },
-            itemwidth: 80,
+            itemwidth: 30,
             traceorder: "normal",
             itemclick: "toggle",
+            itemsizing: "constant",
           },
           hovermode: "x unified",
           hoverlabel: {
             bgcolor: "white",
             font: { family: "Inter var, sans-serif" },
           },
+          shapes: [presentTimeShape],
         }}
         config={{
           responsive: true,
@@ -220,3 +220,5 @@ export function TrendAnalysisChart({ className }: TrendAnalysisChartProps) {
     </div>
   );
 }
+
+export default TrendAnalysisChart;

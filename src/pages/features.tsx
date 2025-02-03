@@ -4,13 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Brain, LineChart, Zap, Clock, BarChart2, Gauge, Shield, HandCoins } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SporaChat } from "@/features/dashboard/shared/components/spora-chat";
+import { Footer } from "@/components/landing/footer";
 
 const features = [
   {
     id: "ai-analysis",
     icon: Brain,
     title: "AI-Powered Analysis",
-    description: "Our advanced machine learning models analyze vast amounts of market data to provide accurate predictions and insights.",
+    description: "Advanced machine learning models analyze market trends and patterns.",
     benefits: [
       "Real-time market analysis",
       "Pattern recognition",
@@ -22,7 +24,7 @@ const features = [
     id: "real-time",
     icon: Clock,
     title: "Real-Time Insights",
-    description: "Stay ahead of market movements with instant updates and alerts on price changes and market conditions.",
+    description: "Instant market updates and alerts on price changes and market conditions.",
     benefits: [
       "Live price tracking",
       "Instant notifications",
@@ -34,7 +36,7 @@ const features = [
     id: "risk",
     icon: Shield,
     title: "Risk Management",
-    description: "Comprehensive tools to assess and manage market risks effectively.",
+    description: "Comprehensive tools for risk assessment and management.",
     benefits: [
       "Risk assessment",
       "Portfolio analysis",
@@ -118,6 +120,13 @@ export function FeaturesPage() {
           </div>
         </div>
       </main>
+
+      <Footer />
+
+      {/* Add Spora Chat */}
+      <SporaChat />
     </div>
   );
 }
+
+export default FeaturesPage;

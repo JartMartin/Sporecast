@@ -18,9 +18,11 @@ const DashboardHome = lazy(() => import("@/features/dashboard/home"));
 const CommodityStore = lazy(() => import("@/features/dashboard/store"));
 const ProfilePage = lazy(() => import("@/features/dashboard/profile"));
 const AlertsPage = lazy(() => import("@/features/dashboard/alerts"));
-const CommodityPage = lazy(() => import("@/features/dashboard/commodity"));
 
-export function App() {
+// Wheat pages
+const WheatPage = lazy(() => import("@/features/dashboard/commodities/wheat"));
+
+export default function App() {
   return (
     <Router>
       <Suspense fallback={<LoadingPage />}>
@@ -40,7 +42,7 @@ export function App() {
             <Route path="store" element={<CommodityStore />} />
             <Route path="alerts" element={<AlertsPage />} />
             <Route path="profile" element={<ProfilePage />} />
-            <Route path=":commodity" element={<CommodityPage />} />
+            <Route path="wheat" element={<WheatPage />} />
           </Route>
 
           {/* Catch all other routes */}
@@ -52,4 +54,4 @@ export function App() {
   );
 }
 
-export default App;
+export { App }

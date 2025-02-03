@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ProfileForm } from "./components/profile-form";
-import { Bell, CreditCard, Lock, Shield, Store, TrendingUp, LineChart } from "lucide-react";
+import { Bell, CreditCard, Lock, Shield, Store, TrendingUp, LineChart, ChevronLeft } from "lucide-react";
 import { useProfile } from "@/hooks/use-profile";
 import { useCommodities } from "@/hooks/use-commodities";
 import { Loading3D } from "@/components/ui/loading-3d";
@@ -22,6 +23,17 @@ export function ProfilePage() {
 
   return (
     <div className="space-y-6">
+      {/* Back Navigation */}
+      <div className="flex items-center justify-between">
+        <Link
+          to="/dashboard"
+          className="group flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+          Back to My Commodities
+        </Link>
+      </div>
+
       <div>
         <h1 className="text-3xl font-bold mb-2">Profile Settings</h1>
         <p className="text-muted-foreground">Manage your account preferences and subscription</p>

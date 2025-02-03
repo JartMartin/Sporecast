@@ -15,7 +15,15 @@ export function useCommodities() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Get all commodities
+      // Use the active_user_commodities view for better performance
+      const { data: activeCommodities, error: viewError } = await supabase
+        .from('active_user_commodities')
+        .select('*')
+        .order('name');
+
+      if (viewError) throw viewError;
+
+      // Get all available commodities
       const { data: allCommodities, error: commoditiesError } = await supabase
         .from('commodities')
         .select('*')
@@ -23,27 +31,10 @@ export function useCommodities() {
 
       if (commoditiesError) throw commoditiesError;
 
-      // Get user's active commodities
-      const { data: userPortfolio, error: portfolioError } = await supabase
-        .from('commodity_portfolio')
-        .select(`
-          commodity_id,
-          status,
-          added_at,
-          last_viewed_at,
-          commodities (*)
-        `)
-        .eq('user_id', user.id)
-        .eq('status', 'active');
-
-      if (portfolioError) throw portfolioError;
-
       setCommodities(allCommodities);
-      setUserCommodities(userPortfolio?.map(item => ({
-        ...item.commodities,
-        status: item.status,
-        added_at: item.added_at,
-        last_viewed_at: item.last_viewed_at
+      setUserCommodities(activeCommodities?.map(item => ({
+        ...item,
+        status: 'active',
       })) || []);
     } catch (err: any) {
       console.error('Error fetching commodities:', err);
@@ -61,17 +52,14 @@ export function useCommodities() {
   useEffect(() => {
     fetchCommodities();
 
-    // Subscribe to ALL relevant changes
+    // Subscribe to portfolio changes
     const subscription = supabase
       .channel('portfolio_changes')
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 
         table: 'commodity_portfolio' 
-      }, () => {
-        // Immediately fetch updated data when portfolio changes
-        fetchCommodities();
-      })
+      }, fetchCommodities)
       .subscribe();
 
     return () => {

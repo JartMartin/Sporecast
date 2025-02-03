@@ -1,6 +1,7 @@
 import { MainNav } from "@/components/navigation/main-nav";
 import { CommodityTable } from "@/components/commodities/commodity-table";
 import { SporaChat } from "@/features/dashboard/shared/components/spora-chat";
+import { Footer } from "@/components/landing/footer";
 
 // Mock data for commodities
 const commoditiesData = [
@@ -45,7 +46,7 @@ const commoditiesData = [
     exchange: "Intercontinental Exchange (ICE)",
     marketCode: "KC",
     status: "in-queue" as const,
-  },
+  }
 ];
 
 export function CommoditiesPage() {
@@ -75,6 +76,8 @@ export function CommoditiesPage() {
           <CommodityTable commodities={commoditiesData} />
         </div>
       </main>
+
+      <Footer />
 
       {/* Add Spora Chat */}
       <SporaChat />

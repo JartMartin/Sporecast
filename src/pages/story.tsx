@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight, Users, Target, LineChart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Footer } from "@/components/landing/footer";
+import { SporaChat } from "@/features/dashboard/shared/components/spora-chat";
 
 const timeline = [
   {
@@ -118,6 +120,7 @@ export function StoryPage() {
             </div>
 
             <div className="relative">
+              {/* Timeline Line */}
               <div className="absolute left-1/2 transform -translate-x-px h-full w-0.5 bg-gradient-to-b from-teal-500 to-emerald-500" />
               
               <div className="space-y-12">
@@ -126,7 +129,8 @@ export function StoryPage() {
                     "relative flex items-center gap-8",
                     index % 2 === 0 ? "flex-row" : "flex-row-reverse"
                   )}>
-                    <div className="flex-1 text-right">
+                    {/* Content */}
+                    <div className="flex-1">
                       <div className={cn(
                         "bg-white p-6 rounded-lg shadow-md transition-all duration-300 hover:shadow-lg",
                         index % 2 === 0 ? "mr-4" : "ml-4"
@@ -136,7 +140,11 @@ export function StoryPage() {
                         <p className="text-gray-600 mt-2">{event.description}</p>
                       </div>
                     </div>
+
+                    {/* Timeline Dot */}
                     <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 rounded-full bg-gradient-to-r from-teal-500 to-emerald-500" />
+
+                    {/* Empty Space */}
                     <div className="flex-1" />
                   </div>
                 ))}
@@ -145,6 +153,13 @@ export function StoryPage() {
           </div>
         </div>
       </main>
+
+      <Footer />
+
+      {/* Add Spora Chat */}
+      <SporaChat />
     </div>
   );
 }
+
+export default StoryPage;

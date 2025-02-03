@@ -23,6 +23,8 @@ export function NeuralNetwork({
 }: NeuralNetworkProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [time, setTime] = useState(0);
+  const animationFrameRef = useRef<number>();
+  const drawIntervalRef = useRef<number>();
 
   // Generate nodes
   const nodes = useRef<Node[]>(Array.from({ length: nodeCount }, (_, i) => ({
@@ -53,8 +55,13 @@ export function NeuralNetwork({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const animate = () => {
-      setTime(t => t + 0.016);
+    let lastTime = performance.now();
+    const animate = (currentTime: number) => {
+      const deltaTime = (currentTime - lastTime) / 1000;
+      lastTime = currentTime;
+      
+      setTime(t => t + deltaTime);
+      animationFrameRef.current = requestAnimationFrame(animate);
     };
 
     const draw = () => {
@@ -90,12 +97,20 @@ export function NeuralNetwork({
       });
     };
 
-    const interval = setInterval(animate, 16);
+    // Start animation
+    animationFrameRef.current = requestAnimationFrame(animate);
+    
+    // Set up draw interval
     const drawInterval = setInterval(draw, 16);
+    drawIntervalRef.current = drawInterval;
 
     return () => {
-      clearInterval(interval);
-      clearInterval(drawInterval);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (drawIntervalRef.current) {
+        clearInterval(drawIntervalRef.current);
+      }
     };
   }, [time, nodes, color]);
 

@@ -4,8 +4,9 @@ import { MainNav } from "@/components/navigation/main-nav";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Brain, Calendar, Settings, TrendingUp, Coffee, ArrowRight } from "lucide-react";
+import { Coffee, ArrowRight } from "lucide-react";
 import { SporaChat } from "@/features/dashboard/shared/components/spora-chat";
+import { Footer } from "@/components/landing/footer";
 import {
   Accordion,
   AccordionContent,
@@ -16,22 +17,18 @@ import { cn } from "@/lib/utils";
 
 const features = [
   {
-    icon: Brain,
-    title: "Advanced ML Models",
+    title: "AI-Powered Analysis",
     description: "Full access to daily refreshed machine learning models trained on 120,000 variables per commodity"
   },
   {
-    icon: Calendar,
     title: "Daily Forecasts",
     description: "Real-time daily forecasts, always reflecting the latest market conditions"
   },
   {
-    icon: Settings,
     title: "Custom Notifications",
     description: "Customizable notifications, tailored to your needs and preferences"
   },
   {
-    icon: TrendingUp,
     title: "Full Transparency",
     description: "Access to supporting metrics, including expected volatility and model performance"
   }
@@ -154,22 +151,12 @@ export function PricingPage() {
 
                   {/* Features Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {features.map((feature) => {
-                      const Icon = feature.icon;
-                      return (
-                        <div key={feature.title} className="space-y-3">
-                          <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-lg bg-teal-50 flex items-center justify-center">
-                              <Icon className="h-5 w-5 text-teal-600" />
-                            </div>
-                            <h3 className="font-medium">{feature.title}</h3>
-                          </div>
-                          <p className="text-sm text-gray-600 pl-11">
-                            {feature.description}
-                          </p>
-                        </div>
-                      );
-                    })}
+                    {features.map((feature) => (
+                      <div key={feature.title} className="space-y-3">
+                        <h3 className="font-medium">{feature.title}</h3>
+                        <p className="text-sm text-gray-600">{feature.description}</p>
+                      </div>
+                    ))}
                   </div>
 
                   <Link to="/auth?tab=signup" className="block">
@@ -267,6 +254,8 @@ export function PricingPage() {
           </div>
         </div>
       </main>
+
+      <Footer />
 
       {/* Add Spora Chat */}
       <SporaChat />

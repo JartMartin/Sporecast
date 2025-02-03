@@ -31,6 +31,15 @@ interface PortfolioTableProps {
 type SortField = 'name' | 'price' | 'volume' | 'forecast_1w' | 'forecast_4w' | 'forecast_12w' | 'forecast_26w' | 'forecast_52w';
 type SortDirection = 'asc' | 'desc';
 
+// Mock forecast data
+const FORECAST_PERIODS = {
+  '1w': { price: 205.25, change: 1.87 },
+  '4w': { price: 210.50, change: 4.48 },
+  '12w': { price: 218.75, change: 8.57 },
+  '26w': { price: 225.30, change: 11.82 },
+  '52w': { price: 235.80, change: 17.03 }
+} as const;
+
 export function PortfolioTable({ items, className }: PortfolioTableProps) {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -48,7 +57,6 @@ export function PortfolioTable({ items, className }: PortfolioTableProps) {
     return item;
   };
 
-  // Sort function
   const sortItems = (a: PortfolioItem, b: PortfolioItem) => {
     const aTransformed = transformWheatData(a);
     const bTransformed = transformWheatData(b);
@@ -88,12 +96,13 @@ export function PortfolioTable({ items, className }: PortfolioTableProps) {
   const sortedItems = [...items].sort(sortItems);
 
   // Mobile Card View
-  const MobileCard = ({ item }: { item: PortfolioItem }) => {
+  const MobileCard = ({ item, index }: { item: PortfolioItem; index: number }) => {
     const transformedItem = transformWheatData(item);
     return (
       <Link 
         to={`/dashboard/${transformedItem.symbol.toLowerCase()}`}
         className="block"
+        key={`mobile-${transformedItem.id}-${index}`}
       >
         <Card className="p-4 hover:shadow-md transition-shadow duration-200">
           <div className="space-y-3">
@@ -112,29 +121,37 @@ export function PortfolioTable({ items, className }: PortfolioTableProps) {
               <ArrowRight className="h-4 w-4 text-neutral-400" />
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-2">
-              <div>
-                <div className="text-sm text-muted-foreground">Current Price</div>
-                <div className="font-medium">€201.48</div>
-                <div className="text-xs text-emerald-600">+2.4%</div>
-              </div>
-              <div>
-                <div className="text-sm text-muted-foreground">Volume</div>
-                <div className="font-medium">46.53K</div>
-                <div className="text-xs text-emerald-600">+8%</div>
+            {/* Current Situation */}
+            <div>
+              <h4 className="text-xs font-medium text-gray-500 mb-2">Current Situation</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-sm text-muted-foreground">Current Price</div>
+                  <div className="font-medium">€201.48</div>
+                  <div className="text-xs text-emerald-600">+2.4%</div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground">Volume</div>
+                  <div className="font-medium">46.53K</div>
+                  <div className="text-xs text-emerald-600">+8%</div>
+                </div>
               </div>
             </div>
 
-            <div className="pt-2">
-              <div className="text-sm text-muted-foreground mb-2">Forecast Trend</div>
-              <svg width="100%" height="30" className="text-teal-500">
-                <path
-                  d="M0 15 L20 10 L40 20 L60 5 L80 15 L100 10"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                />
-              </svg>
+            {/* Expected Forecast Situation */}
+            <div>
+              <h4 className="text-xs font-medium text-teal-600 mb-2">Expected Forecast Situation</h4>
+              <div className="pt-2">
+                <div className="text-sm text-gray-500 mb-2">Forecast Graph (52W)</div>
+                <svg width="100%" height="30" className="text-teal-500">
+                  <path
+                    d="M0 15 L20 10 L40 20 L60 5 L80 15 L100 10"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
         </Card>
@@ -147,70 +164,60 @@ export function PortfolioTable({ items, className }: PortfolioTableProps) {
     <div className="hidden lg:block rounded-md border bg-white">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>
+          {/* Section Headers */}
+          <TableRow className="border-b border-gray-100">
+            <TableHead className="w-[300px]">
               <SortButton field="name">Commodity Name</SortButton>
             </TableHead>
-            <TableHead>
+            <TableHead colSpan={2} className="text-center border-l border-r border-gray-100">
+              <div className="text-sm font-medium text-gray-500">Current Situation</div>
+            </TableHead>
+            <TableHead colSpan={6} className="text-center">
+              <div className="text-sm font-medium text-teal-600">Expected Forecast Situation</div>
+            </TableHead>
+          </TableRow>
+
+          {/* Column Headers */}
+          <TableRow>
+            <TableHead className="w-[300px]">Name</TableHead>
+            
+            {/* Current Situation */}
+            <TableHead className="border-l border-gray-100">
               <div className="text-right">
                 <SortButton field="price">Price</SortButton>
               </div>
             </TableHead>
-            <TableHead>
+            <TableHead className="border-r border-gray-100">
               <div className="text-right">
                 <SortButton field="volume">Volume</SortButton>
               </div>
             </TableHead>
-            <TableHead>
-              <div className="text-center">Forecast Graph</div>
+
+            {/* Expected Forecast Situation */}
+            <TableHead className="w-[180px]">
+              <div className="text-center text-gray-500">Forecast Graph (52W)</div>
             </TableHead>
-            <TableHead>
-              <div className="text-right">
-                <SortButton field="forecast_1w">1W</SortButton>
-              </div>
-            </TableHead>
-            <TableHead>
-              <div className="text-right">
-                <SortButton field="forecast_4w">4W</SortButton>
-              </div>
-            </TableHead>
-            <TableHead>
-              <div className="text-right">
-                <SortButton field="forecast_12w">12W</SortButton>
-              </div>
-            </TableHead>
-            <TableHead>
-              <div className="text-right">
-                <SortButton field="forecast_26w">26W</SortButton>
-              </div>
-            </TableHead>
-            <TableHead>
-              <div className="text-right">
-                <SortButton field="forecast_52w">52W</SortButton>
-              </div>
-            </TableHead>
+            {Object.entries(FORECAST_PERIODS).map(([period]) => (
+              <TableHead key={`header-${period}`}>
+                <div className="text-right">
+                  <SortButton field={`forecast_${period}` as SortField}>{period.toUpperCase()}</SortButton>
+                </div>
+              </TableHead>
+            ))}
             <TableHead className="w-[50px]" />
           </TableRow>
         </TableHeader>
-        <TableBody>
-          {sortedItems.map((item) => {
-            const transformedItem = transformWheatData(item);
-            
-            // Mock forecast data
-            const forecasts = {
-              '1w': { price: 205.25, change: 1.87 },
-              '4w': { price: 210.50, change: 4.48 },
-              '12w': { price: 218.75, change: 8.57 },
-              '26w': { price: 225.30, change: 11.82 },
-              '52w': { price: 235.80, change: 17.03 }
-            };
 
+        <TableBody>
+          {sortedItems.map((item, index) => {
+            const transformedItem = transformWheatData(item);
             return (
               <TableRow
-                key={transformedItem.id}
+                key={`row-${transformedItem.id}-${index}`}
                 className="group cursor-pointer hover:bg-muted/50"
               >
-                <TableCell className="font-medium">
+                {/* Name cell */}
+                <TableCell className="font-medium w-[300px]">
                   <Link 
                     to={`/dashboard/${transformedItem.symbol.toLowerCase()}`}
                     className="block"
@@ -227,44 +234,46 @@ export function PortfolioTable({ items, className }: PortfolioTableProps) {
                   </Link>
                 </TableCell>
 
-                <TableCell>
+                {/* Current Situation */}
+                <TableCell className="border-l border-gray-100">
                   <div className="text-right tabular-nums">
                     <div className="font-medium">€201.48</div>
                     <div className="text-xs text-emerald-600">+2.4%</div>
                   </div>
                 </TableCell>
 
-                <TableCell>
+                <TableCell className="border-r border-gray-100">
                   <div className="text-right tabular-nums">
                     <div>46.53K</div>
                     <div className="text-xs text-emerald-600">+8%</div>
                   </div>
                 </TableCell>
 
-                <TableCell>
-                  <Link 
-                    to={`/dashboard/${transformedItem.symbol.toLowerCase()}`}
-                    className="block px-2"
-                  >
-                    <svg
-                      width="100%"
-                      height="30"
-                      className="text-teal-500"
-                      preserveAspectRatio="none"
-                    >
-                      <path
-                        d="M 0 15 L20 10 L40 20 L60 5 L80 15 L100 10"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                      />
-                    </svg>
-                  </Link>
+                {/* Graph cell */}
+                <TableCell className="w-[180px] px-0">
+                  <div className="flex items-center justify-center h-full w-full">
+                    <div className="w-[140px]">
+                      <svg
+                        width="100%"
+                        height="30"
+                        viewBox="0 0 140 30"
+                        preserveAspectRatio="none"
+                        className="text-teal-500"
+                      >
+                        <path
+                          d="M0 15 L28 10 L56 20 L84 5 L112 15 L140 10"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                        />
+                      </svg>
+                    </div>
+                  </div>
                 </TableCell>
 
-                {/* Forecast Cells */}
-                {Object.entries(forecasts).map(([period, data]) => (
-                  <TableCell key={period}>
+                {/* Forecast cells */}
+                {Object.entries(FORECAST_PERIODS).map(([period, data]) => (
+                  <TableCell key={`${transformedItem.id}-${period}`}>
                     <div className="text-right tabular-nums">
                       <div className="font-medium">€{data.price.toFixed(2)}</div>
                       <div className={cn(
@@ -277,6 +286,7 @@ export function PortfolioTable({ items, className }: PortfolioTableProps) {
                   </TableCell>
                 ))}
 
+                {/* Action cell */}
                 <TableCell>
                   <Link 
                     to={`/dashboard/${transformedItem.symbol.toLowerCase()}`}
@@ -303,8 +313,8 @@ export function PortfolioTable({ items, className }: PortfolioTableProps) {
 
       {/* Mobile View */}
       <div className="block lg:hidden space-y-4">
-        {sortedItems.map((item) => (
-          <MobileCard key={item.id} item={item} />
+        {sortedItems.map((item, index) => (
+          <MobileCard key={`mobile-card-${item.id}-${index}`} item={item} index={index} />
         ))}
       </div>
 

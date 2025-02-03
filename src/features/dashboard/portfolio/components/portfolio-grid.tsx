@@ -38,7 +38,7 @@ export function PortfolioGrid({ items, className }: PortfolioGridProps) {
         return (
           <Link 
             key={transformedItem.id} 
-            to={`/dashboard/${transformedItem.name.toLowerCase()}`}
+            to="/dashboard/commodities/wheat"
             className="block group"
           >
             <Card className="transition-all duration-200 hover:shadow-md group-hover:border-neutral-300">

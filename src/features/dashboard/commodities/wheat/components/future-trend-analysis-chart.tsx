@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 interface FutureTrendAnalysisChartProps {
   className?: string;
+  horizon?: string;
 }
 
 interface DataSeries {
@@ -12,12 +13,12 @@ interface DataSeries {
   visible: boolean;
 }
 
-export function FutureTrendAnalysisChart({ className }: FutureTrendAnalysisChartProps) {
+export function FutureTrendAnalysisChart({ className, horizon }: FutureTrendAnalysisChartProps) {
   // Track visibility state for each line
-  const [series, setSeries] = useState<DataSeries[]>([
-    { name: "Expected Trend", color: "#0d9488", visible: true },
-    { name: "Last Year Trend", color: "#f97316", visible: true },
-    { name: "5-Year Average", color: "#6b7280", visible: true },
+  const [series] = useState<DataSeries[]>([
+    { name: "Next 12 Weeks – Prediction", color: "#0d9488", visible: true },
+    { name: "Next 12 Weeks – Last Year", color: "#f97316", visible: true },
+    { name: "Next 12 Weeks – 2 Years Ago", color: "#6b7280", visible: true },
   ]);
 
   // Generate smoother sample data using cubic interpolation
@@ -68,7 +69,7 @@ export function FutureTrendAnalysisChart({ className }: FutureTrendAnalysisChart
   };
 
   const expectedTrendData = generateData(220, 15, 90, 30); // Upward trend
-  const lastYearTrendData = generateData(200, 12, 90, 20); // Similar trend but lower
+  const lastYearData = generateData(200, 12, 90, 20); // Similar trend but lower
   const fiveYearAvgData = generateData(210, 8, 90, 25); // More stable
 
   // Format dates for display
@@ -83,6 +84,22 @@ export function FutureTrendAnalysisChart({ className }: FutureTrendAnalysisChart
   const todayPrice = expectedTrendData[0].price;
   const todayDate = formatDate(expectedTrendData[0].date);
 
+  // Create present time indicator
+  const presentTimeShape = {
+    type: 'rect',
+    xref: 'x',
+    yref: 'paper',
+    x0: todayDate,
+    x1: todayDate,
+    y0: 0,
+    y1: 1,
+    fillcolor: 'rgba(13, 148, 136, 0.1)',
+    line: {
+      width: 0,
+    },
+    layer: 'below'
+  };
+
   return (
     <div className={cn("w-full h-[400px]", className)}>
       <Plot
@@ -93,7 +110,7 @@ export function FutureTrendAnalysisChart({ className }: FutureTrendAnalysisChart
             y: expectedTrendData.map(d => d.price),
             type: "scatter",
             mode: "lines",
-            name: "Expected Trend",
+            name: series[0].name,
             line: { 
               color: series[0].color, 
               width: 2,
@@ -105,11 +122,11 @@ export function FutureTrendAnalysisChart({ className }: FutureTrendAnalysisChart
             hovertemplate: "Date: %{x}<br>Price: €%{y:.2f}<extra></extra>",
           },
           {
-            x: lastYearTrendData.map(d => formatDate(d.date)),
-            y: lastYearTrendData.map(d => d.price),
+            x: lastYearData.map(d => formatDate(d.date)),
+            y: lastYearData.map(d => d.price),
             type: "scatter",
             mode: "lines",
-            name: "Last Year Trend",
+            name: series[1].name,
             line: { 
               color: series[1].color, 
               width: 2,
@@ -124,7 +141,7 @@ export function FutureTrendAnalysisChart({ className }: FutureTrendAnalysisChart
             y: fiveYearAvgData.map(d => d.price),
             type: "scatter",
             mode: "lines",
-            name: "5-Year Average",
+            name: series[2].name,
             line: { 
               color: series[2].color, 
               width: 2,
@@ -133,25 +150,6 @@ export function FutureTrendAnalysisChart({ className }: FutureTrendAnalysisChart
             },
             visible: series[2].visible,
             hovertemplate: "Date: %{x}<br>Price: €%{y:.2f}<extra></extra>",
-          },
-          // Today's marker
-          {
-            x: [todayDate],
-            y: [todayPrice],
-            type: "scatter",
-            mode: "markers",
-            name: "Today",
-            marker: {
-              color: "#22c55e", // text-green-500
-              size: 12,
-              symbol: "circle",
-              line: {
-                color: "#ffffff",
-                width: 2
-              }
-            },
-            showlegend: false,
-            hovertemplate: "Today<br>Price: €%{y:.2f}<extra></extra>",
           },
         ]}
         layout={{
@@ -178,25 +176,27 @@ export function FutureTrendAnalysisChart({ className }: FutureTrendAnalysisChart
           showlegend: true,
           legend: {
             x: 0.5,
-            y: -0.2,
+            y: -0.3,
             xanchor: "center",
             yanchor: "top",
-            orientation: "h",
+            orientation: "v",
             bgcolor: "rgba(255,255,255,0)",
             borderwidth: 0,
             font: {
-              size: 12,
+              size: 11,
               family: "Inter var, sans-serif",
             },
-            itemwidth: 80,
+            itemwidth: 30,
             traceorder: "normal",
             itemclick: "toggle",
+            itemsizing: "constant",
           },
           hovermode: "x unified",
           hoverlabel: {
             bgcolor: "white",
             font: { family: "Inter var, sans-serif" },
           },
+          shapes: [presentTimeShape],
         }}
         config={{
           responsive: true,
@@ -221,3 +221,5 @@ export function FutureTrendAnalysisChart({ className }: FutureTrendAnalysisChart
     </div>
   );
 }
+
+export default FutureTrendAnalysisChart;
