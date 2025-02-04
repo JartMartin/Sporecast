@@ -13,7 +13,12 @@ export function useCommodities() {
   const fetchCommodities = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      if (!user) {
+        // If not authenticated, just set empty arrays without error
+        setCommodities([]);
+        setUserCommodities([]);
+        return;
+      }
 
       // Use the active_user_commodities view for better performance
       const { data: activeCommodities, error: viewError } = await supabase
@@ -37,13 +42,16 @@ export function useCommodities() {
         status: 'active',
       })) || []);
     } catch (err: any) {
-      console.error('Error fetching commodities:', err);
-      setError(err.message);
-      toast({
-        title: "Error",
-        description: err.message,
-        variant: "destructive",
-      });
+      // Only show error toast for unexpected errors
+      if (err.message !== 'Not authenticated') {
+        console.error('Error fetching commodities:', err);
+        setError(err.message);
+        toast({
+          title: "Error",
+          description: "Failed to load commodities. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }

@@ -17,20 +17,28 @@ export function useAuth() {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
-        if (error) throw error;
+        if (error) {
+          // Only log error if it's not a session_not_found error
+          if (error.message !== 'Session from session_id claim in JWT does not exist') {
+            console.error('Auth error:', error);
+          }
+        }
         
         if (mounted) {
           setUser(session?.user || null);
           setIsAuthenticated(!!session);
         }
       } catch (error: any) {
-        console.error('Auth error:', error);
-        if (mounted) {
-          toast({
-            title: "Authentication Error",
-            description: error.message,
-            variant: "destructive",
-          });
+        // Only show toast for unexpected errors
+        if (error.message !== 'Session from session_id claim in JWT does not exist') {
+          console.error('Auth error:', error);
+          if (mounted) {
+            toast({
+              title: "Authentication Error",
+              description: error.message,
+              variant: "destructive",
+            });
+          }
         }
       } finally {
         if (mounted) {

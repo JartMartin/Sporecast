@@ -1,5 +1,7 @@
+import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Bell, ArrowRight } from "lucide-react";
 
 export function EmptyAlerts() {
   return (
@@ -12,6 +14,13 @@ export function EmptyAlerts() {
         <p className="text-muted-foreground max-w-[600px] mx-auto">
           Set up price alerts for your commodities to stay informed about important market changes. You'll receive notifications when prices cross your specified thresholds.
         </p>
+      </div>
+      <div className="flex justify-center">
+        <Link to="/dashboard">
+          <Button className="gap-2">
+            Set Up Your First Alert <ArrowRight className="h-4 w-4" />
+          </Button>
+        </Link>
       </div>
     </Card>
   );

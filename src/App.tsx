@@ -54,4 +54,4 @@ export default function App() {
   );
 }
 
-export { App }
+export { App };

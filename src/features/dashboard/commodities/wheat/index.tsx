@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,12 +9,12 @@ import { WheatHeader } from "./components/wheat-header";
 import { WheatTimeHorizonContent } from "./components/wheat-time-horizon-content";
 import { GeneralInfo } from "./components/general-info";
 import { UnsubscribeDialog } from "@/components/dashboard/unsubscribe-dialog";
-import { Download, AlertTriangle, Loader2, ChevronLeft } from "lucide-react";
+import { AlertDialog } from "@/components/dashboard/alert-dialog";
+import { Download, AlertTriangle, ChevronLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { generatePDF } from "@/lib/pdf";
 import { CommodityDetails } from "@/lib/types";
-import { Loading3D } from "@/components/ui/loading-3d";
 
 const timeHorizons = [
   { id: "1w", label: "1 Week" },
@@ -30,33 +30,40 @@ export function WheatPage() {
   const [selectedHorizon, setSelectedHorizon] = useState<TimeHorizon>("12w");
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
   const [showUnsubscribe, setShowUnsubscribe] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [hasAccess, setHasAccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [commodityDetails, setCommodityDetails] = useState<CommodityDetails | null>(null);
+  const [commodityId, setCommodityId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     const checkAccess = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          navigate('/auth');
-          return;
-        }
-
-        // Get wheat commodity details
+        // Get wheat commodity ID first
         const { data: wheat, error: wheatError } = await supabase
           .from('commodities')
           .select('*')
           .eq('symbol', 'WHEAT')
           .single();
 
-        if (wheatError || !wheat) {
+        if (wheatError) {
+          console.error('Error fetching wheat commodity:', wheatError);
+          throw new Error('Failed to load wheat commodity data');
+        }
+
+        if (!wheat) {
           throw new Error('Wheat commodity not found');
         }
 
+        // Store the commodity ID
+        setCommodityId(wheat.id);
+
         // Check if user has access
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
         const { data: portfolio, error: portfolioError } = await supabase
           .from('commodity_portfolio')
           .select('status')
@@ -106,9 +113,14 @@ export function WheatPage() {
         };
 
         setCommodityDetails(commodityDetails);
-        setHasAccess(true);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error checking access:', error);
+        setError(error.message);
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
         navigate('/dashboard/store');
       } finally {
         setLoading(false);
@@ -116,32 +128,26 @@ export function WheatPage() {
     };
 
     checkAccess();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   const handleUnsubscribe = async () => {
     try {
+      if (!commodityId) throw new Error('Commodity ID not found');
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
-
-      const { data: wheat } = await supabase
-        .from('commodities')
-        .select('id')
-        .eq('symbol', 'WHEAT')
-        .single();
-
-      if (!wheat) throw new Error('Wheat commodity not found');
 
       const { error } = await supabase
         .from('commodity_portfolio')
         .update({ status: 'inactive' })
         .eq('user_id', user.id)
-        .eq('commodity_id', wheat.id);
+        .eq('commodity_id', commodityId);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Successfully unsubscribed from Wheat commodity.",
+        description: `Successfully unsubscribed from ${commodityDetails?.display_name}.`,
       });
 
       navigate('/dashboard', { replace: true });
@@ -175,13 +181,20 @@ export function WheatPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
-        <Loading3D />
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-500" />
       </div>
     );
   }
 
-  if (!hasAccess || !commodityDetails) {
-    return null;
+  if (error || !commodityDetails || !commodityId) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[200px] gap-4">
+        <p className="text-red-500">{error || 'Failed to load commodity data'}</p>
+        <Button variant="outline" onClick={() => navigate('/dashboard')}>
+          Return to Dashboard
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -196,51 +209,6 @@ export function WheatPage() {
           Back to My Commodities
         </Link>
       </div>
-
-      {/* Download Warning Dialog */}
-      <Dialog open={showDownloadDialog} onOpenChange={setShowDownloadDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-amber-600">
-              <AlertTriangle className="h-5 w-5" />
-              Confidentiality Notice
-            </DialogTitle>
-            <DialogDescription className="space-y-4 pt-4">
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
-                <p className="font-medium mb-2">Important:</p>
-                <p>
-                  This report contains confidential market analysis and proprietary forecasting data. 
-                  By downloading this report, you agree to:
-                </p>
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                  <li>Not share or distribute this report with third parties</li>
-                  <li>Use the information solely for internal business purposes</li>
-                  <li>Maintain the confidentiality of the data and analysis</li>
-                </ul>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Violation of these terms may result in the suspension of your account and legal action.
-              </p>
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="ghost"
-              onClick={() => setShowDownloadDialog(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="default"
-              onClick={handleDownload}
-              className="gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Download Report
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Header */}
       <WheatHeader 
@@ -292,25 +260,77 @@ export function WheatPage() {
               value={horizon.id}
               className="mt-6"
             >
-              <Suspense fallback={<Loading3D />}>
-                <WheatTimeHorizonContent 
-                  horizon={horizon.id} 
-                  onUnsubscribe={() => setShowUnsubscribe(true)}
-                  onSetAlert={() => {}}
-                />
-              </Suspense>
+              <WheatTimeHorizonContent 
+                horizon={horizon.id} 
+                onUnsubscribe={() => setShowUnsubscribe(true)}
+                onSetAlert={() => setShowAlert(true)}
+              />
             </TabsContent>
           ))}
         </Tabs>
       </div>
+
+      {/* Download Warning Dialog */}
+      <Dialog open={showDownloadDialog} onOpenChange={setShowDownloadDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-600">
+              <AlertTriangle className="h-5 w-5" />
+              Confidentiality Notice
+            </DialogTitle>
+            <DialogDescription className="space-y-4 pt-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
+                <p className="font-medium mb-2">Important:</p>
+                <p>
+                  This report contains confidential market analysis and proprietary forecasting data. 
+                  By downloading this report, you agree to:
+                </p>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  <li>Not share or distribute this report with third parties</li>
+                  <li>Use the information solely for internal business purposes</li>
+                  <li>Maintain the confidentiality of the data and analysis</li>
+                </ul>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Violation of these terms may result in the suspension of your account and legal action.
+              </p>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="ghost"
+              onClick={() => setShowDownloadDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="default"
+              onClick={handleDownload}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Download Report
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Unsubscribe Dialog */}
       <UnsubscribeDialog
         open={showUnsubscribe}
         onOpenChange={setShowUnsubscribe}
         commodityName={commodityDetails.display_name}
-        commodityId="wheat"
+        commodityId={commodityId}
         onConfirm={handleUnsubscribe}
+      />
+
+      {/* Alert Dialog */}
+      <AlertDialog
+        open={showAlert}
+        onOpenChange={setShowAlert}
+        commodityId={commodityId}
+        commodityName={commodityDetails.display_name}
+        currentPrice={commodityDetails.currentPrice}
       />
     </div>
   );

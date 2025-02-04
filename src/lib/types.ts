@@ -76,8 +76,18 @@ export interface Alert {
   type: 'price_above' | 'price_below';
   threshold: number;
   is_active: boolean;
+  approaching_trigger?: boolean;
+  progress_to_trigger?: number;
+  email_notifications?: boolean;
   commodity: {
     name: string;
   };
   created_at: string;
+}
+
+export interface AlertFormData {
+  type: 'price_above' | 'price_below';
+  threshold: number;
+  is_active: boolean;
+  email_notifications?: boolean;
 }
