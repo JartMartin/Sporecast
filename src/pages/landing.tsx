@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 export function LandingPage() {
   const [isVisible, setIsVisible] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
   const sectionsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
@@ -41,33 +42,60 @@ export function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setMousePosition({ x, y });
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <MainNav />
 
       {/* Hero Section */}
-      <div className="relative flex-1 w-full overflow-hidden">
-        {/* Background Pattern */}
+      <div 
+        className="relative flex-1 w-full overflow-hidden bg-gradient-to-br from-teal-50 via-emerald-50/50 to-teal-50/30"
+        onMouseMove={handleMouseMove}
+      >
+        {/* Interactive Background */}
         <div className="absolute inset-0 -z-10">
+          {/* Grid Pattern */}
           <div 
-            className="absolute inset-0 bg-[linear-gradient(110deg,#10b981,#0d9488)]" 
-            style={{ opacity: 0.05 }} 
-          />
-          <svg 
-            className="absolute w-full h-full" 
-            xmlns="http://www.w3.org/2000/svg"
+            className="absolute inset-0 opacity-[0.03]"
             style={{
-              transform: `translateY(${scrollY * 0.1}px)`,
-              transition: 'transform 0.1s ease-out',
+              backgroundImage: `
+                linear-gradient(rgba(13, 148, 136, 0.5) 1px, transparent 1px),
+                linear-gradient(to right, rgba(13, 148, 136, 0.5) 1px, transparent 1px)
+              `,
+              backgroundSize: '50px 50px',
+              transform: `
+                translateX(${(mousePosition.x - 50) * 0.02}px)
+                translateY(${(mousePosition.y - 50) * 0.02}px)
+                rotate(${(mousePosition.x - 50) * 0.01}deg)
+              `,
+              transition: 'transform 0.5s ease-out'
             }}
-          >
-            <defs>
-              <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
-                <path d="M0 32V0h32" fill="none" stroke="currentColor" strokeOpacity="0.05" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
+          />
+
+          {/* Interactive Gradient */}
+          <div 
+            className="absolute inset-0 opacity-75 transition-opacity duration-500"
+            style={{
+              background: `
+                radial-gradient(
+                  circle at ${mousePosition.x}% ${mousePosition.y}%, 
+                  rgba(20, 184, 166, 0.15) 0%, 
+                  rgba(16, 185, 129, 0.1) 30%, 
+                  transparent 70%
+                )
+              `,
+            }}
+          />
+
+          {/* Edge Gradients */}
+          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent" />
         </div>
 
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-32">
@@ -78,7 +106,7 @@ export function LandingPage() {
         </div>
       </div>
 
-      {/* Continuous Background Animation */}
+      {/* Rest of the sections */}
       <div className="relative">
         <div 
           className="absolute inset-0 w-full"
@@ -149,8 +177,6 @@ export function LandingPage() {
       </div>
 
       <Footer />
-
-      {/* Add Spora Chat */}
       <SporaChat />
     </div>
   );

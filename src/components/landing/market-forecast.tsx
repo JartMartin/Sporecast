@@ -14,8 +14,21 @@ export function MarketForecast({ isVisible }: MarketForecastProps) {
     )}>
       {/* Container for overlapping cards */}
       <div className="relative">
-        {/* Analytics Card (Top Layer) */}
-        <div className="absolute top-[calc(85%-20px)] -right-4 z-10 group">
+        {/* Current Price Card */}
+        <div className="absolute -left-4 -top-4 z-10 group">
+          <div className="relative flex w-[180px] rounded-xl bg-white border shadow-sm p-2.5 transition-all duration-300 group-hover:shadow-md group-hover:border-neutral-300">
+            <div className="relative flex-1">
+              <p className="text-[10px] font-medium text-neutral-500">Current Price</p>
+              <div className="mt-1">
+                <p className="text-lg font-semibold text-neutral-900">€201.48</p>
+                <p className="text-[10px] font-medium text-emerald-600">+2.4% last 12 weeks</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Analytics Card (Top Right) */}
+        <div className="absolute -top-4 -right-4 z-10 group">
           <div className="relative flex w-[200px] rounded-xl bg-white border shadow-sm p-2.5 transition-all duration-300 group-hover:shadow-md group-hover:border-neutral-300">
             <div className="relative flex-1">
               <div className="mb-2 flex items-center justify-between">
@@ -46,7 +59,38 @@ export function MarketForecast({ isVisible }: MarketForecastProps) {
           </div>
         </div>
 
-        {/* Forecast Card (Base Layer) */}
+        {/* Hitrate Card (Bottom Left) */}
+        <div className="absolute -bottom-4 -left-4 z-10 group">
+          <div className="relative flex w-[120px] rounded-xl bg-white border shadow-sm p-2.5 transition-all duration-300 group-hover:shadow-md group-hover:border-neutral-300">
+            <div className="relative flex-1">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-teal-600">92%</div>
+                <p className="text-[10px] font-medium text-neutral-500">Hitrate</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Future Trend Card (Bottom Right) */}
+        <div className="absolute -bottom-4 -right-4 z-10 group">
+          <div className="relative flex w-[180px] rounded-xl bg-white border shadow-sm p-2.5 transition-all duration-300 group-hover:shadow-md group-hover:border-neutral-300">
+            <div className="relative flex-1">
+              <p className="text-[10px] font-medium text-neutral-500">Future Trend Analysis</p>
+              <div className="h-[60px] mt-1">
+                <svg width="100%" height="100%" viewBox="0 0 160 60">
+                  <path
+                    d="M0 30 C40 10, 80 50, 160 20"
+                    fill="none"
+                    stroke="#0d9488"
+                    strokeWidth="2"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Forecast Card */}
         <div className="relative bg-white rounded-2xl shadow-xl p-5 border mt-16">
           <div className="space-y-4">
             <div className="space-y-2">

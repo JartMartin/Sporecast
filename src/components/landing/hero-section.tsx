@@ -56,7 +56,7 @@ export function HeroSection({ isVisible }: HeroSectionProps) {
             </span>
             <span className="relative inline-block">
               <span className={cn(
-                "absolute -inset-1 rounded-lg bg-gradient-to-r from-teal-500/20 to-emerald-500/20 blur-lg transition-all duration-700",
+                "absolute -inset-1 rounded-lg bg-gradient-to-br from-teal-500/20 to-emerald-500/20 blur-lg transition-all duration-700",
                 showHighlight ? "opacity-100" : "opacity-0"
               )} />
               <span className={cn(

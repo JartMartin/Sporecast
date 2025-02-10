@@ -57,11 +57,11 @@ export function PricingPage() {
   const [isAnnual, setIsAnnual] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Calculate pricing
-  const monthlyPrice = 99;
-  const annualPrice = monthlyPrice * 10; // 2 months free
+  // Calculate pricing placeholder
+  const monthlyPrice = "X";
+  const annualPrice = "10X"; // 2 months free
   const price = isAnnual ? annualPrice : monthlyPrice;
-  const savings = isAnnual ? monthlyPrice * 2 : 0;
+  const savings = isAnnual ? "2X" : 0;
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -99,7 +99,7 @@ export function PricingPage() {
                 </span>
               </h1>
               <p className="text-xl text-gray-600">
-                €99 per commodity per month. All access, no hidden fees.
+                €{monthlyPrice} per commodity per month. All access, no hidden fees.
               </p>
 
               {/* Billing Toggle */}
@@ -142,7 +142,7 @@ export function PricingPage() {
                       </span>
                     </div>
                     <div className="text-sm text-gray-500 mt-2">per commodity</div>
-                    {savings > 0 && (
+                    {isAnnual && (
                       <div className="text-sm text-teal-600 font-medium mt-2">
                         Save €{savings} with annual billing
                       </div>
@@ -256,8 +256,6 @@ export function PricingPage() {
       </main>
 
       <Footer />
-
-      {/* Add Spora Chat */}
       <SporaChat />
     </div>
   );

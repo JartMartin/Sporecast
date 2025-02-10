@@ -124,7 +124,7 @@ export function MainNav() {
             </Link>
             <Link to="/auth?tab=signup">
               <Button className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 transition-all duration-300">
-                Get Started
+                Sign Up
               </Button>
             </Link>
           </div>
