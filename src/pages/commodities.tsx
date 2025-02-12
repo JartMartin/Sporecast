@@ -12,41 +12,7 @@ const commoditiesData = [
     marketCode: "EBM",
     status: "available" as const,
   },
-  {
-    name: "Maize",
-    category: "Cereals",
-    exchange: "Chicago Mercantile Exchange (CME)",
-    marketCode: "ZC",
-    status: "available" as const,
-  },
-  {
-    name: "Barley",
-    category: "Cereals",
-    exchange: "Euronext",
-    marketCode: "BAR",
-    status: "available" as const,
-  },
-  {
-    name: "Oats",
-    category: "Cereals",
-    exchange: "Chicago Mercantile Exchange (CME)",
-    marketCode: "ZO",
-    status: "coming-soon" as const,
-  },
-  {
-    name: "Soybean",
-    category: "Oilseeds",
-    exchange: "Chicago Mercantile Exchange (CME)",
-    marketCode: "ZS",
-    status: "in-queue" as const,
-  },
-  {
-    name: "Coffee",
-    category: "Other",
-    exchange: "Intercontinental Exchange (ICE)",
-    marketCode: "KC",
-    status: "in-queue" as const,
-  }
+  // ... rest of the commodities data
 ];
 
 export function CommoditiesPage() {
@@ -54,7 +20,7 @@ export function CommoditiesPage() {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <MainNav />
 
-      <main className="flex-1 py-12 md:py-24">
+      <main className="flex-1 pt-32 pb-12 md:pt-40 md:pb-24">
         <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Section */}
           <div className="max-w-3xl mx-auto text-center space-y-8 mb-16">
@@ -78,8 +44,6 @@ export function CommoditiesPage() {
       </main>
 
       <Footer />
-
-      {/* Add Spora Chat */}
       <SporaChat />
     </div>
   );

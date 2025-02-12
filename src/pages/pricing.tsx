@@ -68,7 +68,7 @@ export function PricingPage() {
       <MainNav />
 
       <main className="flex-1">
-        <div className="relative py-12 md:py-24 overflow-hidden">
+        <div className="relative pt-32 pb-12 md:pt-40 md:pb-24 overflow-hidden">
           {/* Background Pattern */}
           <div className="absolute inset-0 -z-10">
             <div className="absolute inset-0 bg-gradient-to-br from-teal-50 via-white to-emerald-50" />

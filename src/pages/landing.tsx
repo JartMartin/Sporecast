@@ -98,10 +98,15 @@ export function LandingPage() {
           <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent" />
         </div>
 
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-32">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16 md:pt-40 md:pb-32">
+          <div className="flex flex-col items-center gap-24">
+            {/* Hero Content */}
             <HeroSection isVisible={isVisible} />
-            <MarketForecast isVisible={isVisible} />
+
+            {/* Market Forecast */}
+            <div className="w-full max-w-5xl mx-auto">
+              <MarketForecast isVisible={isVisible} />
+            </div>
           </div>
         </div>
       </div>

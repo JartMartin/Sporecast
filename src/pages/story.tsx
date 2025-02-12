@@ -59,7 +59,7 @@ export function StoryPage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <div className="relative py-12 md:py-24 bg-gray-50">
+        <div className="relative pt-32 pb-12 md:pt-40 md:pb-24 bg-gray-50">
           <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center space-y-8">
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
@@ -155,8 +155,6 @@ export function StoryPage() {
       </main>
 
       <Footer />
-
-      {/* Add Spora Chat */}
       <SporaChat />
     </div>
   );

@@ -10,7 +10,7 @@ export function MarketForecast({ isVisible }: MarketForecastProps) {
   return (
     <div className={cn(
       "relative transition-all duration-1000 delay-700",
-      isVisible ? "translate-x-0 opacity-100" : "translate-x-4 opacity-0"
+      isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
     )}>
       {/* Container for overlapping cards */}
       <div className="relative">
