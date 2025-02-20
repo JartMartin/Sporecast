@@ -2,26 +2,24 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useProfile } from "@/hooks/use-profile";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, User2, Building2, Mail } from "lucide-react";
+import { Loader2, User2, Building2, Mail, Briefcase, Hash } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
-const roles = [
-  { value: "purchase_department", label: "Purchase Department" },
-  { value: "head_of_purchase", label: "Head of Purchase" },
-  { value: "board_management", label: "Board Management" },
-] as const;
-
-type Role = typeof roles[number]['value'];
+// Function to format role text
+function formatRole(role: string): string {
+  return role
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
 
 export function ProfileForm() {
   const { profile, updateProfile } = useProfile();
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     full_name: profile?.full_name || '',
-    role: profile?.role || '',
-    company: profile?.company || '',
   });
   const { toast } = useToast();
 
@@ -32,8 +30,6 @@ export function ProfileForm() {
     try {
       const { error } = await updateProfile({
         full_name: formData.full_name.trim(),
-        role: formData.role as Role,
-        company: formData.company.trim(),
       });
 
       if (error) throw new Error(error);
@@ -54,90 +50,172 @@ export function ProfileForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              id="email"
-              type="email"
-              value={profile?.email || ''}
-              readOnly
-              className="bg-gray-50 pl-9"
-            />
+    <div className="space-y-6">
+      {/* Personal Information */}
+      <Card className="p-6">
+        <div className="flex items-center gap-4 pb-6 border-b">
+          <div className="h-10 w-10 rounded-full bg-teal-50 flex items-center justify-center">
+            <User2 className="h-5 w-5 text-teal-600" />
+          </div>
+          <div>
+            <h3 className="font-semibold">Personal Information</h3>
+            <p className="text-sm text-muted-foreground">Your account details</p>
           </div>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="fullName">Full Name</Label>
-          <div className="relative">
-            <User2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              id="fullName"
-              value={formData.full_name}
-              onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-              disabled={saving}
-              className="pl-9"
-              required
-            />
-          </div>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="role">Role</Label>
-          <Select
-            value={formData.role}
-            onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}
-            disabled={saving}
-            required
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select your role" />
-            </SelectTrigger>
-            <SelectContent>
-              {roles.map((role) => (
-                <SelectItem key={role.value} value={role.value}>
-                  {role.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="company">Company</Label>
-          <div className="relative">
-            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              id="company"
-              value={formData.company}
-              onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
-              disabled={saving}
-              className="pl-9"
-              required
-            />
+        <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="email"
+                  type="email"
+                  value={profile?.email || ''}
+                  readOnly
+                  className="bg-gray-50 pl-9"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <div className="relative">
+                <User2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="fullName"
+                  value={formData.full_name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
+                  disabled={saving}
+                  className="pl-9"
+                  required
+                />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div className="flex justify-end">
-        <Button
-          type="submit"
-          disabled={saving}
-          className="min-w-[120px]"
-        >
-          {saving ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
-            </>
-          ) : (
-            'Save Changes'
-          )}
-        </Button>
-      </div>
-    </form>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="role">Role in Company</Label>
+              <div className="relative">
+                <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="role"
+                  value={formatRole(profile?.role || '')}
+                  readOnly
+                  className="bg-gray-50 pl-9"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              disabled={saving}
+              className="min-w-[120px]"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
+            </Button>
+          </div>
+        </form>
+      </Card>
+
+      {/* Company Information */}
+      {profile?.company_id && (
+        <Card className="p-6">
+          <div className="flex items-center gap-4 pb-6 border-b">
+            <div className="h-10 w-10 rounded-full bg-teal-50 flex items-center justify-center">
+              <Building2 className="h-5 w-5 text-teal-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Company Information</h3>
+              <p className="text-sm text-muted-foreground">Company details and access codes</p>
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-6">
+            {/* Company Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label className="text-sm text-muted-foreground">Company Name</Label>
+                <p className="text-lg font-medium mt-1">{profile.company}</p>
+              </div>
+              <div>
+                <Label className="text-sm text-muted-foreground">Industry</Label>
+                <p className="text-lg font-medium mt-1 capitalize">
+                  {profile.industry?.replace(/_/g, ' ')}
+                </p>
+              </div>
+            </div>
+
+            {/* Company ID and Invite Code */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t">
+              <div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">Company ID</h4>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Required for new users to join
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => {
+                      navigator.clipboard.writeText(profile.company_id);
+                      toast({
+                        title: "Copied",
+                        description: "Company ID copied to clipboard",
+                      });
+                    }}
+                  >
+                    <code className="px-2 py-1 bg-muted rounded text-sm font-mono">
+                      {profile.company_id}
+                    </code>
+                  </Button>
+                </div>
+              </div>
+
+              {profile.company_role === 'admin' && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-medium">Invitation Code</h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Share with new team members
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                      onClick={() => {
+                        const inviteCode = Math.floor(100000 + Math.random() * 900000).toString();
+                        navigator.clipboard.writeText(inviteCode);
+                        toast({
+                          title: "Generated & Copied",
+                          description: "New invitation code copied to clipboard",
+                        });
+                      }}
+                    >
+                      <Hash className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+    </div>
   );
 }

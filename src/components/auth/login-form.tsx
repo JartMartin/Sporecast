@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { ForgotPassword } from "./forgot-password";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
@@ -65,31 +65,25 @@ export function LoginForm() {
         {error && (
           <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">
             {error}
-            {error.includes("already registered") && (
-              <Button
-                variant="link"
-                className="px-0 text-sm text-red-500 hover:text-red-600"
-                onClick={() => navigate('/auth?tab=login')}
-              >
-                Click here to log in
-              </Button>
-            )}
           </div>
         )}
         
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            disabled={loading}
-            className="bg-white"
-            autoComplete="email"
-          />
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+              className="pl-9"
+              autoComplete="email"
+            />
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -102,7 +96,6 @@ export function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
             required
             disabled={loading}
-            className="bg-white"
             autoComplete="current-password"
           />
           <Button

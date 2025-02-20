@@ -1,7 +1,18 @@
 import { useState, useEffect } from 'react';
-import { supabase, initializeUserProfile } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { useToast } from './use-toast';
 import { useNavigate } from 'react-router-dom';
+
+interface CompanyRegistrationData {
+  name: string;
+  industry: string;
+  admin: {
+    full_name: string;
+    email: string;
+    password: string;
+    company_role: string;
+  };
+}
 
 export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -18,7 +29,6 @@ export function useAuth() {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          // Only log error if it's not a session_not_found error
           if (error.message !== 'Session from session_id claim in JWT does not exist') {
             console.error('Auth error:', error);
           }
@@ -29,7 +39,6 @@ export function useAuth() {
           setIsAuthenticated(!!session);
         }
       } catch (error: any) {
-        // Only show toast for unexpected errors
         if (error.message !== 'Session from session_id claim in JWT does not exist') {
           console.error('Auth error:', error);
           if (mounted) {
@@ -54,7 +63,6 @@ export function useAuth() {
         setUser(session?.user || null);
         setIsAuthenticated(!!session);
 
-        // Handle auth state changes
         if (event === 'SIGNED_IN') {
           navigate('/dashboard', { replace: true });
         } else if (event === 'SIGNED_OUT') {
@@ -82,32 +90,51 @@ export function useAuth() {
     }
   };
 
-  const signUp = async (email: string, password: string, userData: {
-    full_name: string;
-    role: string;
-    company: string;
-  }) => {
+  const registerCompany = async (data: CompanyRegistrationData) => {
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
+      // 1. Create company first
+      const { data: companyData, error: companyError } = await supabase
+        .from('companies')
+        .insert({
+          name: data.name,
+          industry: data.industry
+        })
+        .select()
+        .single();
+
+      if (companyError) throw companyError;
+
+      // 2. Create user account
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.admin.email,
+        password: data.admin.password,
         options: {
-          data: userData
+          data: {
+            full_name: data.admin.full_name,
+            company_role: data.admin.company_role,
+            company_id: companyData.id
+          }
         }
       });
 
-      if (error) throw error;
+      if (authError) throw authError;
+      if (!authData.user) throw new Error('Failed to create user account');
 
-      if (data.user) {
-        await initializeUserProfile(data.user.id, {
-          ...userData,
-          email
-        });
-        return { data, error: null };
-      }
+      // 3. Update user profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          full_name: data.admin.full_name,
+          company_id: companyData.id,
+          company_role: 'admin'
+        })
+        .eq('id', authData.user.id);
 
-      return { data: null, error: 'Failed to create user' };
+      if (profileError) throw profileError;
+
+      return { data: authData, error: null };
     } catch (error: any) {
+      console.error('Registration error:', error);
       return { data: null, error: error.message };
     }
   };
@@ -131,7 +158,7 @@ export function useAuth() {
     loading,
     user,
     signOut,
-    signUp,
+    registerCompany,
     signIn
   };
 }

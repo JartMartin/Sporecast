@@ -9,8 +9,19 @@ export interface Profile {
   id: string;
   email: string;
   full_name: string | null;
-  role: 'purchase_department' | 'head_of_purchase' | 'board_management' | null;
-  company: string | null;
+  company_id: string | null;
+  company_role: 'admin' | 'user' | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Company Types
+export interface Company {
+  id: string;
+  name: string;
+  industry: string;
+  subscription_status: 'trial' | 'active' | 'cancelled';
+  trial_ends_at: string | null;
   created_at: string;
   updated_at: string;
 }

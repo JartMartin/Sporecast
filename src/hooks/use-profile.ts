@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, safeQuery } from '@/lib/supabase';
-import { Profile } from '@/lib/types';
+import { Profile, Company } from '@/lib/types';
 import { useToast } from './use-toast';
 
 export function useProfile() {
@@ -17,17 +17,36 @@ export function useProfile() {
         return;
       }
 
-      // Get profile data with retries
+      // Get profile data with company details
       const { data, error } = await safeQuery(
         supabase
           .from('profiles')
-          .select('*')
+          .select(`
+            *,
+            companies:company_id (
+              id,
+              name,
+              industry,
+              subscription_status,
+              trial_ends_at
+            )
+          `)
           .eq('id', user.id)
-          .maybeSingle()
+          .single()
       );
 
       if (error) throw new Error(error);
-      setProfile(data);
+
+      // Transform the data to match our Profile type
+      const profileData: Profile = {
+        ...data,
+        company: data.companies?.name || null,
+        company_id: data.companies?.id || null,
+        trial_ends_at: data.companies?.trial_ends_at || null,
+        subscription_status: data.companies?.subscription_status || null
+      };
+
+      setProfile(profileData);
     } catch (err: any) {
       console.error('Profile error:', err);
       setError(err.message);

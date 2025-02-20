@@ -96,9 +96,10 @@ export async function safeQuery<T>(
 // Helper to initialize user profile
 export async function initializeUserProfile(userId: string, userData: {
   full_name: string;
-  role: string;
-  company: string;
   email: string;
+  role?: string;
+  company_id?: string;
+  company_role?: string;
 }) {
   try {
     const { error } = await supabase
@@ -106,9 +107,10 @@ export async function initializeUserProfile(userId: string, userData: {
       .upsert({
         id: userId,
         full_name: userData.full_name.trim(),
-        role: userData.role,
-        company: userData.company.trim(),
         email: userData.email.trim(),
+        role: userData.role,
+        company_id: userData.company_id,
+        company_role: userData.company_role,
         updated_at: new Date().toISOString()
       }, {
         onConflict: 'id'
